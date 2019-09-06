@@ -5,7 +5,8 @@ import lombok.Setter;
 
 public class Variable<T extends IVariable> {
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private T value;
 
     public Variable(T value) {

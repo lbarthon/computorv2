@@ -2,12 +2,9 @@ package fr.lbarthon.computorv2;
 
 import fr.lbarthon.computorv2.parser.Parser;
 import fr.lbarthon.computorv2.variables.Variable;
-import fr.lbarthon.computorv2.variables.VariableType;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Computor {
