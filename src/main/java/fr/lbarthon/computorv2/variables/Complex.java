@@ -59,10 +59,9 @@ public class Complex {
         return this;
     }
 
-    public Complex modulo(Complex c) {
+    public Complex modulo(Complex c) throws ArithmeticException {
         if (this.isComplex() || c.isComplex()) {
-
-            return this;
+            throw new ArithmeticException("Modulo of complex numbers not handled");
         }
 
         this.real %= c.getReal();

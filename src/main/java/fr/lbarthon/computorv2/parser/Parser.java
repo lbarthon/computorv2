@@ -1,7 +1,7 @@
 package fr.lbarthon.computorv2.parser;
 
 import fr.lbarthon.computorv2.Computor;
-import fr.lbarthon.computorv2.variables.VariableType;
+import fr.lbarthon.computorv2.token.Tokenizer;
 
 public class Parser {
 
@@ -12,12 +12,9 @@ public class Parser {
     }
 
     public String parse(String str) {
-        int index = str.indexOf('=');
-        if (index > 0) {
-            VariableType type = VariableType.getTypeOfString(str);
-        } else {
+        Tokenizer tokenizer = new Tokenizer(str);
 
-        }
+        tokenizer.getTokens().forEach(System.out::println);
 
         return str;
     }
