@@ -4,17 +4,22 @@ import fr.lbarthon.computorv2.parser.Parser;
 import fr.lbarthon.computorv2.variables.Variable;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Computor {
 
     private Map<String, Variable> variables;
+    private List<String> oldStrings;
     @Getter
     private Parser parser;
 
     public Computor() {
-        this.variables = new HashMap();
+        this.variables = new HashMap<>();
+        this.oldStrings = new ArrayList<>();
+
         this.parser = new Parser(this);
     }
 
@@ -23,6 +28,8 @@ public class Computor {
             this.exit();
             return;
         }
+
+        this.oldStrings.add(str);
 
         System.out.println(parser.parse(str));
     }

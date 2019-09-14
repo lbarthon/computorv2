@@ -1,6 +1,12 @@
 package fr.lbarthon.computorv2;
 
-import java.io.Console;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.MaskingCallback;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import java.io.IOException;
 
 public class ComputorV2 {
 
@@ -13,16 +19,26 @@ public class ComputorV2 {
     }
 
     private static void run(Computor computorInstance) {
-        Console console = System.console();
-        if (console != null) {
+        TerminalBuilder builder = TerminalBuilder.builder();
+        builder.system(false).streams(System.in, System.out);
+
+        try {
+            Terminal terminal = builder.build();
+            LineReader reader = LineReaderBuilder.builder()
+                    .terminal(terminal)
+                    .parser(null)
+                    .build();
+
+            reader.setOpt(LineReader.Option.ERASE_LINE_ON_FINISH);
+
             String str;
+
             do {
-                console.printf(PROMPT);
-                str = console.readLine();
-                computorInstance.handle(str);
+                str = reader.readLine(PROMPT, null, (MaskingCallback) null, null);
+                computorInstance.handle(str.trim());
             } while (str != null);
-        } else {
-            System.out.println("Error. Null console.");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

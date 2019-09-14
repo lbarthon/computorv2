@@ -11,11 +11,16 @@ repositories {
 }
 
 dependencies {
+    compile 'org.jline:jline:3.12.1'
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'
 }
 
 jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
     manifest {
         attributes 'Main-Class': 'fr.lbarthon.computorv2.ComputorV2'
     }
