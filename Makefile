@@ -26,4 +26,4 @@ clean:
 
 re: fclean all
 
-.PHONY: all fclean clean re lib
+.PHONY: all fclean clean re
