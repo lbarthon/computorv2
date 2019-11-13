@@ -15,11 +15,11 @@ public class NodeCalculationException extends Exception {
             return "Null token !";
         }
 
-        if (this.node.getLeft() == null && this.node.getLeftNode() == null) {
+        if (this.node.getLeft() == null) {
             return "Left part empty !";
         }
 
-        if (this.node.getRight() == null && this.node.getRightNode() == null) {
+        if (this.node.getRight() == null) {
             return "Right part empty !";
         }
 
