@@ -77,12 +77,4 @@ public class Node {
 
         return null;
     }
-
-    @Override
-    public String toString() {
-        if (this.token instanceof Token) {
-
-        }
-        return this.token.toString();
-    }
 }

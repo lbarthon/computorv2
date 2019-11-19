@@ -3,6 +3,7 @@ package fr.lbarthon.computorv2.variables;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.utils.MathUtils;
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 public class Complex implements IVariable {
@@ -55,19 +56,19 @@ public class Complex implements IVariable {
         }
     }
 
-    public Complex add(Complex c) {
+    public Complex add(@NonNull Complex c) {
         this.real += c.getReal();
         this.img += c.getImg();
         return this;
     }
 
-    public Complex sub(Complex c) {
+    public Complex sub(@NonNull Complex c) {
         this.real -= c.getReal();
         this.img -= c.getImg();
         return this;
     }
 
-    public Complex mult(Complex c) {
+    public Complex mult(@NonNull Complex c) {
         Double newReal = this.real * c.getReal() - this.img * c.getImg();
         Double newImg = this.img * c.getReal() + this.real * c.getImg();
 
@@ -82,7 +83,7 @@ public class Complex implements IVariable {
      * @return this
      * @link http://uel.unisciel.fr/physique/outils_nancy/outils_nancy_ch04/co/apprendre_03_04.html
      */
-    public Complex div(Complex c) throws ArithmeticException {
+    public Complex div(@NonNull Complex c) throws ArithmeticException {
         double diviser = MathUtils.square(c.getReal()) + MathUtils.square(c.getImg());
 
         if (diviser == 0) {
@@ -98,7 +99,7 @@ public class Complex implements IVariable {
         return this;
     }
 
-    public Complex modulo(Complex c) throws ArithmeticException {
+    public Complex modulo(@NonNull Complex c) throws ArithmeticException {
         if (this.isComplex() || c.isComplex()) {
             throw new ArithmeticException("Modulo of complex numbers not handled");
         }
@@ -108,7 +109,7 @@ public class Complex implements IVariable {
         return this;
     }
 
-    public Complex pow(Complex c) throws ArithmeticException {
+    public Complex pow(@NonNull Complex c) throws ArithmeticException {
         if (c.isComplex()) {
             throw new ArithmeticException("Complex number as power");
         }
