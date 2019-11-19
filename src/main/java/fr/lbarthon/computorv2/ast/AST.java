@@ -22,7 +22,7 @@ public class AST {
         this.parser.parse(this.head);
     }
 
-    public Complex solve() {
+    public Complex solve() throws ArithmeticException {
         return this.head.solve();
     }
 

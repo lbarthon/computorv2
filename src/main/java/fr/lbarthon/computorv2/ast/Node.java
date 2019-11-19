@@ -29,7 +29,7 @@ public class Node {
         return temp;
     }
 
-    public Complex solve() {
+    public Complex solve() throws ArithmeticException {
         if (this.token instanceof Complex) {
             return (Complex) this.token;
         }

@@ -47,6 +47,8 @@ public class Computor {
             }
         } catch (ParseException e) {
             e.displayProblematicPart();
+        } catch (ArithmeticException e) {
+            return "ArithmeticException - " + e.getMessage();
         }
 
         return "";
