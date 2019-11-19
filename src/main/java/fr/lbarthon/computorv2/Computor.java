@@ -1,7 +1,11 @@
 package fr.lbarthon.computorv2;
 
+import fr.lbarthon.computorv2.ast.AST;
+import fr.lbarthon.computorv2.ast.Node;
+import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.parser.Parser;
-import fr.lbarthon.computorv2.variables.Variable;
+import fr.lbarthon.computorv2.variables.Complex;
+import fr.lbarthon.computorv2.variables.IVariable;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -11,10 +15,12 @@ import java.util.Map;
 
 public class Computor {
 
-    private Map<String, Variable> variables;
     private List<String> oldStrings;
+    private Map<String, IVariable> variables;
     @Getter
     private Parser parser;
+    @Getter
+    private AST ast;
 
     public Computor() {
         this.variables = new HashMap<>();
@@ -23,23 +29,34 @@ public class Computor {
         this.parser = new Parser(this);
     }
 
-    public void handle(String str) {
-        if (str == null || "exit".equals(str) || "quit".equals(str)) {
-            this.exit();
-            return;
-        }
-
+    public String handle(String str) {
         this.oldStrings.add(str);
 
-        System.out.println(parser.parse(str));
+        try {
+            this.ast = new AST(this.parser, new Node(this));
+            this.ast.createFrom(str);
+            Complex res = this.ast.solve();
+            if (res == null) {
+                if (this.ast.isEquation()) {
+                    return "Handle equations - Todo";
+                } else {
+                    return "Sorry, an error occured...";
+                }
+            } else {
+                return res.toString();
+            }
+        } catch (ParseException e) {
+            e.displayProblematicPart();
+        }
+
+        return "";
     }
 
-    public Variable getVariable(String str) {
+    public IVariable getVariable(String str) {
         return this.variables.get(str);
     }
 
-    private void exit() {
-        // Properly exits the program
-        System.exit(1);
+    public void putVariable(String str, IVariable v) {
+        this.variables.put(str, v);
     }
 }

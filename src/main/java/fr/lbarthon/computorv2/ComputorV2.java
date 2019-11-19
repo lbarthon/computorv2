@@ -1,12 +1,9 @@
 package fr.lbarthon.computorv2;
 
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
-
-import java.io.*;
-import java.lang.Thread;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -14,32 +11,43 @@ import java.util.List;
 
 public class ComputorV2 {
 
-    private static final List<Thread> sockets = new ArrayList<>();
-
     public static final String PROMPT = "> ";
+    private static final List<Thread> sockets = new ArrayList<>();
 
     public static void main(String[] args) {
         try {
             ServerSocket serverSocket = new ServerSocket(8888);
 
             initCleaner();
+            initListener(serverSocket);
 
             while (true) {
-                Socket socket = serverSocket.accept();
-                System.out.println("A user connected from " + socket.getInetAddress().getHostAddress());
-                Thread t = new Thread(new SocketRunnable(socket));
-                sockets.add(t);
-                t.start();
+                try {
+                    Thread.sleep(100);
+                    // Maybe do print stuff here
+                } catch (InterruptedException ignored) {
+                }
             }
-            // System.out.println("Shutting down socket server...");
-            // serverSocket.close();
+
         } catch (IOException e) {
             System.err.println("Error creating socket on port 8888.");
         }
+    }
 
-
-        // Computor computorInstance = new Computor();
-        //run(computorInstance);
+    private static void initListener(ServerSocket serverSocket) {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Socket socket = serverSocket.accept();
+                    System.out.println("A user connected from " + socket.getInetAddress().getHostAddress());
+                    Thread t = new Thread(new SocketRunnable(socket));
+                    sockets.add(t);
+                    t.start();
+                } catch (IOException e) {
+                    // TODO: Handle exception
+                }
+            }
+        }).start();
     }
 
     private static void initCleaner() {
@@ -55,31 +63,6 @@ public class ComputorV2 {
         }).start();
     }
 
-    private static void run(Computor computorInstance) {
-        TerminalBuilder builder = TerminalBuilder.builder();
-        builder.system(false).streams(System.in, System.out);
-
-        try {
-            Terminal terminal = builder.build();
-            System.out.println(terminal.getClass().getName());
-            LineReader reader = LineReaderBuilder.builder()
-                    .terminal(terminal)
-                    .parser(null)
-                    .build();
-
-            reader.setOpt(LineReader.Option.ERASE_LINE_ON_FINISH);
-
-            String str;
-
-            do {
-                str = reader.readLine(PROMPT);
-                computorInstance.handle(str.trim());
-            } while (str != null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     static class SocketRunnable implements Runnable {
 
         private Socket socket;
@@ -93,6 +76,7 @@ public class ComputorV2 {
         public void run() {
             BufferedReader in = null;
             PrintWriter out = null;
+            Computor computor = new Computor();
             try {
                 in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
                 out = new PrintWriter(this.socket.getOutputStream(), true);
@@ -102,9 +86,11 @@ public class ComputorV2 {
                     if (data == null || "exit".equalsIgnoreCase(data) || data.isEmpty()) {
                         break;
                     }
+                    data = data.trim();
 
                     System.out.println("Recieved: " + data);
-                    out.println("Hi : " + data);
+                    String ret = computor.handle(data);
+                    out.println(ret);
                 }
 
                 this.socket.close();
@@ -114,7 +100,8 @@ public class ComputorV2 {
                 try {
                     if (in != null) in.close();
                     if (out != null) out.close();
-                } catch (IOException ignored) {}
+                } catch (IOException ignored) {
+                }
             }
         }
     }

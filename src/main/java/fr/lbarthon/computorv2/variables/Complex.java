@@ -1,20 +1,58 @@
 package fr.lbarthon.computorv2.variables;
 
+import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.utils.MathUtils;
 import lombok.Data;
 
 @Data
-public class Complex {
+public class Complex implements IVariable {
     private Double real;
     private Double img;
 
     public Complex(Double real) {
-        this(real, null);
+        this(real, 0D);
     }
 
     public Complex(Double real, Double img) {
         this.real = real;
         this.img = img;
+    }
+
+    /**
+     * String to complex method
+     *
+     * @param data input string
+     * @return Complex number
+     * @throws ParseException
+     */
+    public static Complex valueOf(String data) throws ParseException {
+        try {
+            data = data.trim();
+            int imgIndex = data.indexOf('i');
+            if (imgIndex == -1) {
+                return new Complex(Double.parseDouble(data), 0D);
+            }
+
+            String leftStr = data.substring(0, imgIndex),
+                    rightStr = data.substring(imgIndex + 1);
+            Double left = null, right = null;
+            try {
+                left = Double.parseDouble(leftStr);
+                right = Double.parseDouble(rightStr);
+            } catch (NumberFormatException ignored) {
+            }
+
+            if (left != null && right != null) {
+                throw new ParseException(data, 0);
+            }
+            if (left == null && right == null) {
+                return new Complex(0D, 1D);
+            }
+
+            return new Complex(0D, left == null ? right : left);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     public Complex add(Complex c) {
@@ -38,6 +76,7 @@ public class Complex {
 
         return this;
     }
+
     /**
      * @param c Other complex number
      * @return this
@@ -76,14 +115,18 @@ public class Complex {
         if (c.getReal() % 1 != 0) {
             throw new ArithmeticException("Non integer power");
         }
-        if (c.getReal() >= 0) {
+        if (c.getReal() < 0) {
             throw new ArithmeticException("Negative power");
         }
 
-        Complex curr = this.clone();
+        if (c.getReal() == 0) {
+            this.setReal(1D);
+        } else {
+            Complex curr = this.clone();
 
-        for (int i = 1; i < c.getReal(); i++) {
-            this.mult(curr);
+            for (int i = 1; i < c.getReal(); i++) {
+                this.mult(curr);
+            }
         }
 
         return this;
@@ -93,7 +136,31 @@ public class Complex {
         return this.getImg() != null && this.getImg() != 0;
     }
 
+    public void patchNegZeros() {
+        if (this.real == -0D) {
+            this.real = 0D;
+        }
+        if (this.img == -0D) {
+            this.img = 0D;
+        }
+    }
+
+    @Override
     public Complex clone() {
+        this.patchNegZeros();
         return new Complex(this.real, this.img);
+    }
+
+    @Override
+    public String toString() {
+        this.patchNegZeros();
+        if (this.isComplex()) {
+            if (this.real != 0D) {
+                return this.real + (this.img < 0D ? " - " : " + ") + this.img + "i";
+            } else {
+                return this.img + "i";
+            }
+        }
+        return this.real.toString();
     }
 }
