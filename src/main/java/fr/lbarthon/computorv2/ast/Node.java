@@ -29,9 +29,9 @@ public class Node {
         return temp;
     }
 
-    public Complex solve() throws ArithmeticException {
-        if (this.token instanceof Complex) {
-            return (Complex) this.token;
+    public IVariable solve() throws ArithmeticException {
+        if (this.token instanceof IVariable) {
+            return (IVariable) this.token;
         }
         if (this.token instanceof AST) {
             return ((AST) this.token).solve();
@@ -47,8 +47,8 @@ public class Node {
         }
 
         if (this.token instanceof Token) {
-            Complex left = this.left.solve();
-            Complex right = this.right.solve();
+            IVariable left = this.left.solve();
+            IVariable right = this.right.solve();
 
             if (this.token == Token.EQUAL) {
                 if (this.left.token instanceof String && StringUtils.isAlphabetic((String) this.left.token)) {
@@ -71,7 +71,7 @@ public class Node {
                 case PLUS:
                     return left.add(right);
                 case LESS:
-                    return left == null ? right.opposite() : left.sub(right);
+                    return left == null ? right.negate() : left.sub(right);
             }
         }
 

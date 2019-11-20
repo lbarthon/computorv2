@@ -36,7 +36,14 @@ public class Validator {
             }
             throw new ParseException(this.str, indexes.get(0));
         }
+        return this;
+    }
 
+    public Validator matrice() throws ParseException {
+        int rowLength = -1;
+        for (char c : this.getAsCharArray()) {
+
+        }
         return this;
     }
 }

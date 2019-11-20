@@ -3,7 +3,7 @@ package fr.lbarthon.computorv2.ast;
 import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.parser.Parser;
-import fr.lbarthon.computorv2.variables.Complex;
+import fr.lbarthon.computorv2.variables.IVariable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -23,7 +23,7 @@ public class AST {
         this.parser.parse(this.head);
     }
 
-    public Complex solve() throws ArithmeticException {
+    public IVariable solve() throws ArithmeticException {
         return this.head.solve();
     }
 

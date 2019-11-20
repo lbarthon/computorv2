@@ -52,7 +52,7 @@ public class Computor {
 
             this.ast = new AST(this.parser, new Node(this));
             this.ast.createFrom(str);
-            Complex res = this.ast.solve();
+            IVariable res = this.ast.solve();
             if (res == null) {
                 if (this.ast.isEquation()) {
                     return "Handle equations - Todo";

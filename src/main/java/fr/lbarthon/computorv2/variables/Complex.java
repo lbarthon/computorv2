@@ -11,7 +11,6 @@ public class Complex implements IVariable {
 
     private Double real;
     private Double img;
-    private boolean neutral = false;
 
     public Complex(Double real) {
         this(real, 0D);
@@ -20,17 +19,6 @@ public class Complex implements IVariable {
     public Complex(Double real, Double img) {
         this.real = real;
         this.img = img;
-    }
-
-    /**
-     * Allows the user to get a neutral complex, that will avoid any calculation on it
-     *
-     * @return Complex number
-     */
-    public static Complex neutral() {
-        Complex nbr = new Complex(0D);
-        nbr.setNeutral(true);
-        return nbr;
     }
 
     /**
@@ -53,7 +41,7 @@ public class Complex implements IVariable {
 
         String leftStr = data.substring(0, imgIndex).trim(),
                 rightStr = data.substring(imgIndex + 1).trim();
-        Double nbr = null;
+        Double nbr;
 
         if (!rightStr.isEmpty()) {
             throw new ParseException(data, imgIndex);
@@ -68,103 +56,122 @@ public class Complex implements IVariable {
         return new Complex(0D, nbr);
     }
 
-    public Complex add(@NonNull Complex c) {
-        if (this.isNeutral()) return c;
-        if (c.isNeutral()) return this;
-
-        this.real += c.getReal();
-        this.img += c.getImg();
+    public IVariable add(@NonNull IVariable var) throws ArithmeticException {
+        if (var instanceof Complex) {
+            Complex c = (Complex) var;
+            this.real += c.getReal();
+            this.img += c.getImg();
+        } else if (var instanceof Matrix) {
+            throw new ArithmeticException("A " + this.getType() + " cannot be added to a matrix");
+        }
         return this;
     }
 
-    public Complex sub(@NonNull Complex c) {
-        if (this.isNeutral()) return c.opposite();
-        if (c.isNeutral()) return this;
-
-        this.real -= c.getReal();
-        this.img -= c.getImg();
+    public IVariable sub(@NonNull IVariable var) throws ArithmeticException {
+        if (var instanceof Complex) {
+            Complex c = (Complex) var;
+            this.real -= c.getReal();
+            this.img -= c.getImg();
+        } else if (var instanceof Matrix) {
+            throw new ArithmeticException("A " + this.getType() + " cannot be subtracted to a matrix");
+        }
         return this;
     }
 
-    public Complex mult(@NonNull Complex c) {
-        if (this.isNeutral()) return c;
-        if (c.isNeutral()) return this;
+    public IVariable mult(@NonNull IVariable var) throws ArithmeticException {
+        if (var instanceof Complex) {
+            Complex c = (Complex) var;
 
-        Double newReal = this.real * c.getReal() - this.img * c.getImg();
-        Double newImg = this.img * c.getReal() + this.real * c.getImg();
+            Double newReal = this.real * c.getReal() - this.img * c.getImg();
+            Double newImg = this.img * c.getReal() + this.real * c.getImg();
 
-        this.real = newReal;
-        this.img = newImg;
-
-        return this;
-    }
-
-    /**
-     * @param c Other complex number
-     * @return this
-     * @link http://uel.unisciel.fr/physique/outils_nancy/outils_nancy_ch04/co/apprendre_03_04.html
-     */
-    public Complex div(@NonNull Complex c) throws ArithmeticException {
-        if (this.isNeutral()) return c;
-        if (c.isNeutral()) return this;
-
-        double diviser = MathUtils.square(c.getReal()) + MathUtils.square(c.getImg());
-
-        if (diviser == 0) {
-            throw new ArithmeticException("Division by 0");
-        }
-
-        Double newReal = (this.real * c.getReal() + this.img * c.getImg()) / diviser;
-        Double newImg = (c.getReal() * this.img - this.real * c.getImg()) / diviser;
-
-        this.real = newReal;
-        this.img = newImg;
-
-        return this;
-    }
-
-    public Complex modulo(@NonNull Complex c) throws ArithmeticException {
-        if (this.isNeutral()) return c;
-        if (c.isNeutral()) return this;
-
-        if (this.isComplex() || c.isComplex()) {
-            throw new ArithmeticException("Modulo of complex numbers not handled");
-        }
-
-        this.real %= c.getReal();
-
-        return this;
-    }
-
-    public Complex pow(@NonNull Complex c) throws ArithmeticException {
-        if (this.isNeutral()) return c;
-        if (c.isNeutral()) return this;
-
-        if (c.isComplex()) {
-            throw new ArithmeticException("Complex number as power");
-        }
-        if (c.getReal() % 1 != 0) {
-            throw new ArithmeticException("Non integer power");
-        }
-        if (c.getReal() < 0) {
-            throw new ArithmeticException("Negative power");
-        }
-
-        if (c.getReal() == 0) {
-            this.setReal(1D);
-        } else {
-            Complex curr = this.clone();
-
-            for (int i = 1; i < c.getReal(); i++) {
-                this.mult(curr);
+            this.real = newReal;
+            this.img = newImg;
+        } else if (var instanceof Matrix) {
+            if (this.isComplex()) {
+                throw new ArithmeticException("A " + this.getType() + " cannot be multiplied by a matrix");
+            } else {
+                return var.mult(this);
             }
         }
 
         return this;
     }
 
-    public Complex opposite() {
-        System.out.println("Opposite called -> " + this.real + " becomes " + -this.real);
+    /**
+     * @param var Other Variable
+     * @return this
+     * @link Complex division {http://uel.unisciel.fr/physique/outils_nancy/outils_nancy_ch04/co/apprendre_03_04.html}
+     */
+    public IVariable div(@NonNull IVariable var) throws ArithmeticException {
+        if (var instanceof Complex) {
+            Complex c = (Complex) var;
+
+            double diviser = MathUtils.square(c.getReal()) + MathUtils.square(c.getImg());
+
+            if (diviser == 0) {
+                throw new ArithmeticException("Division by 0");
+            }
+
+            Double newReal = (this.real * c.getReal() + this.img * c.getImg()) / diviser;
+            Double newImg = (c.getReal() * this.img - this.real * c.getImg()) / diviser;
+
+            this.real = newReal;
+            this.img = newImg;
+        } else {
+            throw new ArithmeticException("A " + this.getType() + " cannot be divided by a matrix");
+        }
+
+        return this;
+    }
+
+    public IVariable modulo(@NonNull IVariable var) throws ArithmeticException {
+        if (var instanceof Complex) {
+            Complex c = (Complex) var;
+
+            if (this.isComplex() || c.isComplex()) {
+                throw new ArithmeticException("Modulo of complex numbers not handled");
+            }
+
+            this.real %= c.getReal();
+        } else {
+            throw new ArithmeticException("A " + this.getType() + " cannot take a matrix as modulo");
+        }
+
+        return this;
+    }
+
+    public IVariable pow(@NonNull IVariable var) throws ArithmeticException {
+        if (var instanceof Complex) {
+            Complex c = (Complex) var;
+
+            if (c.isComplex()) {
+                throw new ArithmeticException("Complex number as power");
+            }
+            if (c.getReal() % 1 != 0) {
+                throw new ArithmeticException("Non integer power");
+            }
+            if (c.getReal() < 0) {
+                throw new ArithmeticException("Negative power");
+            }
+
+            if (c.getReal() == 0) {
+                this.setReal(1D);
+            } else {
+                Complex curr = this.clone();
+
+                for (int i = 1; i < c.getReal(); i++) {
+                    this.mult(curr);
+                }
+            }
+        } else {
+            throw new ArithmeticException("A " + this.getType() + " cannot take a matrix as power");
+        }
+
+        return this;
+    }
+
+    public IVariable negate() {
         this.real = -this.real;
         this.img = -this.img;
         this.patchNegZeros();
@@ -173,6 +180,10 @@ public class Complex implements IVariable {
 
     public boolean isComplex() {
         return this.getImg() != null && this.getImg() != 0;
+    }
+
+    public String getType() {
+        return this.isComplex() ? "complex" : "double";
     }
 
     public void patchNegZeros() {
