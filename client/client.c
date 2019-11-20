@@ -45,6 +45,16 @@ int		init_socket()
 	return (sock);
 }
 
+int		get_response(int sock, char *ret)
+{
+	if (recv(sock, ret, RET_LEN, 0) < 0)
+	{
+		ret = "Error recieving server's response.\n";
+		return (-1);
+	}
+	return (0);
+}
+
 int		send_message(int sock, char *msg, char *ret)
 {
 	// Sending the message to the server
@@ -55,13 +65,7 @@ int		send_message(int sock, char *msg, char *ret)
 	}
 
 	// Recieving server's response
-	if (recv(sock, ret, RET_LEN, 0) < 0)
-	{
-		ret = "Error recieving server's response.\n";
-		return (-1);
-	}
-
-	return (0);
+	return get_response(sock, ret);
 }
 
 int		handle_builtin(char *str, int *x, int *y, int sock, char *ret)
@@ -79,6 +83,14 @@ int		handle_builtin(char *str, int *x, int *y, int sock, char *ret)
 		return (1);
 	}
 	return (0);
+}
+
+int		count_chars(char *s, char c)
+{
+	int i;
+
+	for (i = 0; s[i]; s[i] == c ? i++ : *s++);
+	return (i);
 }
 
 int		main(int ac, char **av)
@@ -119,14 +131,20 @@ int		main(int ac, char **av)
 			switch (c)
 			{
 				case KEY_UP:
-					mvaddstr(y, min_x, test);
-					x = min_x + strlen(test);
+					bzero(ret, RET_LEN + 1);
+					send_message(sock, "history@up\n", ret);
+					mvaddstr(y, min_x, ret);
+					x = min_x + strlen(ret) - 1;
 					clrtoeol();
+					move(y, x);
 					break;
 				case KEY_DOWN:
-					mvaddstr(y, min_x, test);
-					x = min_x + strlen(test);
+					bzero(ret, RET_LEN + 1);
+					send_message(sock, "history@down\n", ret);
+					mvaddstr(y, min_x, ret);
+					x = min_x + strlen(ret) - 1;
 					clrtoeol();
+					move(y, x);
 					break;
 				case KEY_LEFT:
 					if (min_x != x) x--;
@@ -198,14 +216,13 @@ int		main(int ac, char **av)
 		// Handling send error
 		if (r == -1)
 		{
-			endwin();
-			close(sock);
 			printf("%s", ret);
-			return (0);
+			break;
 		}
 		// Printing server response
 		addstr(ret);
-		if (y + 1 < max_y) y++;
+		y += count_chars(ret, '\n');
+		if (y >= max_y) y = max_y - 1;
 	}
 	endwin();
 	close(sock);

@@ -4,14 +4,12 @@ import fr.lbarthon.computorv2.Computor;
 import fr.lbarthon.computorv2.ast.AST;
 import fr.lbarthon.computorv2.ast.Node;
 import fr.lbarthon.computorv2.ast.Token;
+import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.utils.StringUtils;
 import fr.lbarthon.computorv2.variables.Complex;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class Parser {
 
@@ -21,8 +19,8 @@ public class Parser {
         this.computor = computor;
     }
 
-    public void parse(Node node) throws ParseException {
-        String data = node.getTempAndClear();
+    public void parse(Node node) throws ParseException, ComplexFormatException {
+        String data = node.getTempAndClear().trim();
         Integer tokenIndex = getTokenIndex(data, true);
 
         if (tokenIndex == null) {
@@ -48,32 +46,26 @@ public class Parser {
             node.setToken(Token.fromChar(data.charAt(tokenIndex)));
             node.setLeft(new Node(this.computor, data.substring(0, tokenIndex).trim()));
             node.setRight(new Node(this.computor, data.substring(tokenIndex + 1).trim()));
-
-            if (node.getToken() == Token.LESS && node.getLeft().getTemp().isEmpty()) {
-                node.setToken(Complex.valueOf(Token.LESS.getToken() + node.getRight().getTemp()));
-            } else {
-                parse(node.getLeft());
-                parse(node.getRight());
-            }
+            parse(node.getLeft());
+            parse(node.getRight());
         }
     }
 
-    private Integer getTokenIndex(String str, boolean depthZero) throws ParseException {
-        List<Integer> tmp, indexes;
+    private Integer getTokenIndex(String str, boolean depthZero) {
         Integer tokenIndex;
         for (int i = Token.getMaxPrio(); i >= 0; i--) {
-            indexes = new ArrayList<>();
-            tmp = Token.getPrioValues(i).stream()
-                    .map(t -> StringUtils.lastIndexOf(str, t.getToken()))
-                    .filter(nbr -> nbr >= 0).collect(Collectors.toList());
-
-            for (Integer index : tmp) {
-                if ((StringUtils.getDepthCheck(str, index) == 0) == depthZero) {
-                    indexes.add(index);
-                }
-            }
-
-            tokenIndex = indexes.stream().max(Comparator.comparingInt(nbr -> nbr)).orElse(null);
+            tokenIndex = Token.getPrioValues(i).stream()
+                    // Getting all indexes of this token
+                    .map(t -> StringUtils.indexesOf(str, t.getToken()).stream())
+                    // Converting the stream of streams to an unique stream
+                    .flatMap(nbr -> nbr)
+                    .filter(index -> {
+                        int ret = StringUtils.getDepthCheck(str, index);
+                        if (ret == -1) return false;
+                        return (ret == 0) == depthZero;
+                    })
+                    .max(Comparator.comparingInt(nbr -> nbr))
+                    .orElse(null);
 
             if (tokenIndex != null) {
                 return tokenIndex;

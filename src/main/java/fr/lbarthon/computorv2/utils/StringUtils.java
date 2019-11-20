@@ -2,18 +2,20 @@ package fr.lbarthon.computorv2.utils;
 
 import fr.lbarthon.computorv2.exceptions.ParseException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StringUtils {
     public static final char DEPTH_START = '(';
     public static final char DEPTH_END = ')';
     private StringUtils() {
     }
 
-    public static int getDepthCheck(String str, int index) throws ParseException {
+    public static int getDepthCheck(String str, int index) {
         int depth = getDepth(str, index);
         int revDepth = getRevDepth(str, index);
         if (depth == revDepth) return depth;
-        // Handle indexes in a better way
-        throw new ParseException(str, 0);
+        return -1;
     }
 
     public static int getDepth(String str, int index) {
@@ -65,17 +67,17 @@ public class StringUtils {
         return null;
     }
 
-    public static int lastIndexOf(String str, char c) {
-        if (str.indexOf(c) == -1) return -1;
-        char[] chars = str.toCharArray();
-
-        for (int i = str.length() - 1; i >= 0; i--) {
-            if (chars[i] == c) {
-                return i;
+    public static List<Integer> indexesOf(String str, char c) {
+        List<Integer> ret = new ArrayList<>();
+        if (str.indexOf(c) == -1) return ret;
+        int i = 0;
+        for (char ch : str.toCharArray()) {
+            if (ch == c) {
+                ret.add(i);
             }
+            i++;
         }
-
-        return -1;
+        return ret;
     }
 
     public static boolean isAlphabetic(String str) {

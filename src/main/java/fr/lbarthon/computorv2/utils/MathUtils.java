@@ -13,4 +13,21 @@ public class MathUtils {
     public static Double square(Double nbr) {
         return pow(nbr, 2);
     }
+
+    public static Double factorial(Double nbr) {
+        if (nbr < 0) return -1D;
+        if (nbr <= 1) return 1D;
+        return nbr * factorial(nbr - 1);
+    }
+
+    public static Double sqrt(Double x) {
+        if (x <= 0) return 0D;
+        double last = 0.0;
+        double res = 1.0;
+        while (res != last) {
+            last = res;
+            res = (res + x / res) / 2;
+        }
+        return res;
+    }
 }

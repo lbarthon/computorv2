@@ -1,5 +1,6 @@
 package fr.lbarthon.computorv2.variables;
 
+import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.utils.MathUtils;
 import lombok.Data;
@@ -7,8 +8,10 @@ import lombok.NonNull;
 
 @Data
 public class Complex implements IVariable {
+
     private Double real;
     private Double img;
+    private boolean neutral = false;
 
     public Complex(Double real) {
         this(real, 0D);
@@ -20,55 +23,73 @@ public class Complex implements IVariable {
     }
 
     /**
+     * Allows the user to get a neutral complex, that will avoid any calculation on it
+     *
+     * @return Complex number
+     */
+    public static Complex neutral() {
+        Complex nbr = new Complex(0D);
+        nbr.setNeutral(true);
+        return nbr;
+    }
+
+    /**
      * String to complex method
      *
      * @param data input string
      * @return Complex number
      * @throws ParseException
      */
-    public static Complex valueOf(String data) throws ParseException {
-        try {
-            data = data.trim();
-            int imgIndex = data.indexOf('i');
-            if (imgIndex == -1) {
-                return new Complex(Double.parseDouble(data), 0D);
-            }
-
-            String leftStr = data.substring(0, imgIndex),
-                    rightStr = data.substring(imgIndex + 1);
-            Double left = null, right = null;
+    public static Complex valueOf(String data) throws ParseException, ComplexFormatException {
+        data = data.trim();
+        int imgIndex = data.indexOf('i');
+        if (imgIndex == -1) {
             try {
-                left = Double.parseDouble(leftStr);
-                right = Double.parseDouble(rightStr);
-            } catch (NumberFormatException ignored) {
+                return new Complex(Double.parseDouble(data), 0D);
+            } catch (NumberFormatException e) {
+                return null;
             }
-
-            if (left != null && right != null) {
-                throw new ParseException(data, 0);
-            }
-            if (left == null && right == null) {
-                return new Complex(0D, 1D);
-            }
-
-            return new Complex(0D, left == null ? right : left);
-        } catch (NumberFormatException e) {
-            return null;
         }
+
+        String leftStr = data.substring(0, imgIndex).trim(),
+                rightStr = data.substring(imgIndex + 1).trim();
+        Double nbr = null;
+
+        if (!rightStr.isEmpty()) {
+            throw new ParseException(data, imgIndex);
+        }
+
+        try {
+            nbr = Double.parseDouble(leftStr);
+        } catch (NumberFormatException ignored) {
+            throw new ComplexFormatException("\"" + leftStr + "\" isn't a valid double");
+        }
+
+        return new Complex(0D, nbr);
     }
 
     public Complex add(@NonNull Complex c) {
+        if (this.isNeutral()) return c;
+        if (c.isNeutral()) return this;
+
         this.real += c.getReal();
         this.img += c.getImg();
         return this;
     }
 
     public Complex sub(@NonNull Complex c) {
+        if (this.isNeutral()) return c.opposite();
+        if (c.isNeutral()) return this;
+
         this.real -= c.getReal();
         this.img -= c.getImg();
         return this;
     }
 
     public Complex mult(@NonNull Complex c) {
+        if (this.isNeutral()) return c;
+        if (c.isNeutral()) return this;
+
         Double newReal = this.real * c.getReal() - this.img * c.getImg();
         Double newImg = this.img * c.getReal() + this.real * c.getImg();
 
@@ -84,6 +105,9 @@ public class Complex implements IVariable {
      * @link http://uel.unisciel.fr/physique/outils_nancy/outils_nancy_ch04/co/apprendre_03_04.html
      */
     public Complex div(@NonNull Complex c) throws ArithmeticException {
+        if (this.isNeutral()) return c;
+        if (c.isNeutral()) return this;
+
         double diviser = MathUtils.square(c.getReal()) + MathUtils.square(c.getImg());
 
         if (diviser == 0) {
@@ -100,6 +124,9 @@ public class Complex implements IVariable {
     }
 
     public Complex modulo(@NonNull Complex c) throws ArithmeticException {
+        if (this.isNeutral()) return c;
+        if (c.isNeutral()) return this;
+
         if (this.isComplex() || c.isComplex()) {
             throw new ArithmeticException("Modulo of complex numbers not handled");
         }
@@ -110,6 +137,9 @@ public class Complex implements IVariable {
     }
 
     public Complex pow(@NonNull Complex c) throws ArithmeticException {
+        if (this.isNeutral()) return c;
+        if (c.isNeutral()) return this;
+
         if (c.isComplex()) {
             throw new ArithmeticException("Complex number as power");
         }
@@ -130,6 +160,14 @@ public class Complex implements IVariable {
             }
         }
 
+        return this;
+    }
+
+    public Complex opposite() {
+        System.out.println("Opposite called -> " + this.real + " becomes " + -this.real);
+        this.real = -this.real;
+        this.img = -this.img;
+        this.patchNegZeros();
         return this;
     }
 

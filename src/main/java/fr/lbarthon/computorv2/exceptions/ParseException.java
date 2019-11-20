@@ -1,20 +1,24 @@
 package fr.lbarthon.computorv2.exceptions;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
 
 @Getter
-@RequiredArgsConstructor
 public class ParseException extends Exception {
     private static final int wantedChars = 10;
 
-    final String parsedString;
-    final int offset;
+    private final String parsedString;
+    private final int offset;
 
-    public void displayProblematicPart() {
-        int start = this.offset - 5;
+    public ParseException(String parsedString, int offset) {
+        this.parsedString = parsedString;
+        this.offset = offset;
+    }
+
+    @Override
+    public String getMessage() {
+        int start = this.offset - wantedChars / 2;
         if (start < 0) {
             start = 0;
         }
@@ -22,9 +26,14 @@ public class ParseException extends Exception {
         if (end > this.parsedString.length()) {
             end = this.parsedString.length();
         }
-        System.out.println("Error parsing the input");
-        System.out.println(this.parsedString.substring(start, end));
-        System.out.println(getSpaces(this.offset - start) + '^');
+
+        return new StringBuilder()
+                .append("Error parsing the input\n")
+                .append(this.parsedString, start, end)
+                .append('\n')
+                .append(getSpaces(this.offset - start))
+                .append('^')
+                .toString();
     }
 
     private String getSpaces(int nbr) {

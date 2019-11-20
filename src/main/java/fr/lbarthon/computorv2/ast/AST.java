@@ -1,5 +1,6 @@
 package fr.lbarthon.computorv2.ast;
 
+import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.parser.Parser;
 import fr.lbarthon.computorv2.variables.Complex;
@@ -17,7 +18,7 @@ public class AST {
     @Getter
     private boolean equation = false;
 
-    public void createFrom(String data) throws ParseException {
+    public void createFrom(String data) throws ParseException, ComplexFormatException {
         this.head.setTemp(data);
         this.parser.parse(this.head);
     }

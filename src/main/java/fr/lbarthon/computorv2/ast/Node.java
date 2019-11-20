@@ -71,7 +71,7 @@ public class Node {
                 case PLUS:
                     return left.add(right);
                 case LESS:
-                    return left.sub(right);
+                    return left == null ? right.opposite() : left.sub(right);
             }
         }
 
