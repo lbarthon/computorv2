@@ -4,6 +4,7 @@ import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -34,16 +35,35 @@ public class Validator {
             if (depth < 0) {
                 indexes.sort(Comparator.reverseOrder());
             }
-            throw new ParseException(this.str, indexes.get(0));
+            this.parseError(indexes.get(0));
         }
         return this;
     }
 
     public Validator matrice() throws ParseException {
-        int rowLength = -1;
-        for (char c : this.getAsCharArray()) {
+        char start = '[', end = ']';
+        char[] arr = this.getAsCharArray();
+        if (arr[0] != start) this.parseError(0);
+        if (arr[arr.length - 1] != end) this.parseError(arr.length - 1);
+        if (this.str.length() < 2) this.parseError(0);
 
+        // Looping on every row to check if all sizes are alike
+        List<Integer> startIndexes = StringUtils.indexesOf(this.str.substring(1), start);
+        List<Integer> endIndexes = StringUtils.indexesOf(this.str.substring(0, this.str.length() - 1), end);
+        List<Integer> sizes = new ArrayList<>();
+
+
+        while (!startIndexes.isEmpty() && !endIndexes.isEmpty()) {
+            int starti = startIndexes.remove(0);
+            int endi = endIndexes.remove(0);
+            String row = this.str.substring(starti, endi);
+            // TODO
         }
+
         return this;
+    }
+
+    private void parseError(int index) throws ParseException {
+        throw new ParseException(this.str, index);
     }
 }
