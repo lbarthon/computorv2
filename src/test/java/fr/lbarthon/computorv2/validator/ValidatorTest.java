@@ -1,7 +1,7 @@
 package fr.lbarthon.computorv2.validator;
 
+import fr.lbarthon.computorv2.Validator;
 import fr.lbarthon.computorv2.exceptions.ParseException;
-import fr.lbarthon.computorv2.variables.Matrix;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.fail;

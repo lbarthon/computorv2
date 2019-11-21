@@ -1,11 +1,10 @@
-package fr.lbarthon.computorv2.validator;
+package fr.lbarthon.computorv2;
 
 import fr.lbarthon.computorv2.exceptions.MatrixFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.utils.StringUtils;
 import fr.lbarthon.computorv2.variables.Matrix;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -2,12 +2,9 @@ package fr.lbarthon.computorv2;
 
 import fr.lbarthon.computorv2.ast.AST;
 import fr.lbarthon.computorv2.ast.Node;
-import fr.lbarthon.computorv2.ast.Token;
 import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.parser.Parser;
-import fr.lbarthon.computorv2.validator.Validator;
-import fr.lbarthon.computorv2.variables.Complex;
 import fr.lbarthon.computorv2.variables.IVariable;
 import lombok.Getter;
 

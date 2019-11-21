@@ -206,7 +206,7 @@ public class Complex implements IVariable {
         this.patchNegZeros();
         if (this.isComplex()) {
             if (this.real != 0D) {
-                return this.real + (this.img < 0D ? " - " : " + ") + this.img + "i";
+                return this.real + (this.img < 0D ? " - " : " + ") + Math.abs(this.img) + "i";
             } else {
                 return this.img + "i";
             }
