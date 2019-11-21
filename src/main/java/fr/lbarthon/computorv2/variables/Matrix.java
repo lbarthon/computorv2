@@ -1,8 +1,13 @@
 package fr.lbarthon.computorv2.variables;
 
+import fr.lbarthon.computorv2.exceptions.MatrixFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
+import fr.lbarthon.computorv2.utils.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Matrix implements IVariable {
@@ -18,7 +23,7 @@ public class Matrix implements IVariable {
     }
 
     public Matrix setLine(int line, Double ...elements) {
-        return this.setLine(line, (Complex[]) Arrays.stream(elements).map(Complex::new).toArray());
+        return this.setLine(line, Arrays.stream(elements).map(Complex::new).toArray(Complex[]::new));
     }
 
     public Matrix setLine(int line, Complex ...elements) {
@@ -31,9 +36,59 @@ public class Matrix implements IVariable {
         return Arrays.stream(this.tab).map(Arrays::stream).flatMap(c -> c);
     }
 
-    public static Matrix valueOf(String str) throws ParseException {
+    public static Matrix valueOf(String str) throws ParseException, MatrixFormatException {
+        char start = '[', end = ']';
+        char[] arr = str.toCharArray();
+        if (arr[0] != start || str.length() < 2) throw new ParseException(str, 0);
+        if (arr[arr.length - 1] != end) throw new ParseException(str, arr.length - 1);
 
-        return null;
+        // Looping on every row to check if all sizes are alike
+        List<Integer> startIndexes = StringUtils.indexesOf(str.substring(1), start);
+        List<Integer> endIndexes = StringUtils.indexesOf(str.substring(0, str.length() - 1), end);
+
+        List<List<Double>> numbers = new ArrayList<>();
+
+        while (!startIndexes.isEmpty() && !endIndexes.isEmpty()) {
+            // + 2 compensates the substring on startIndexes input (1) and removes the bracket (1 more)
+            int starti = startIndexes.remove(0) + 2;
+            int endi = endIndexes.remove(0);
+            if (!startIndexes.isEmpty()) {
+                String sep = str.substring(endi + 1, startIndexes.get(0) + 1).trim();
+                if (sep.length() != 1 || sep.charAt(0) != ';') {
+                    throw new ParseException(str, endi + 1);
+                }
+            }
+            String row = str.substring(starti, endi);
+            List<Integer> commas = StringUtils.indexesOf(row, ',');
+            commas.add(endi - starti);
+            int prevIndex = 0;
+            List<Double> line = new ArrayList<>();
+            for (int commaIndex : commas) {
+                String nbrStr = row.substring(prevIndex, commaIndex);
+                try {
+                    line.add(Double.parseDouble(nbrStr));
+                } catch (NumberFormatException e) {
+                    throw new ParseException(str, starti + prevIndex);
+                }
+                prevIndex = commaIndex + 1;
+            }
+            numbers.add(line);
+        }
+
+        int wantedSize = numbers.get(0).size();
+        for (int i = 1; i < numbers.size(); i++) {
+            if (numbers.get(i).size() != wantedSize) {
+                throw new MatrixFormatException(i + 1, numbers.get(i).size(), wantedSize);
+            }
+        }
+
+        Matrix ret = new Matrix(numbers.size(), wantedSize);
+        int lineNbr = 0;
+        for (List<Double> line : numbers) {
+            ret.setLine(lineNbr++, line.toArray(new Double[0]));
+        }
+
+        return ret;
     }
 
     public Matrix clone() {
@@ -189,5 +244,12 @@ public class Matrix implements IVariable {
             }
         }
         return identity;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.stream(this.tab)
+                .map(row -> "[" + Arrays.stream(row).map(Complex::toString).collect(Collectors.joining(",")) + "]")
+                .collect(Collectors.joining("\n"));
     }
 }

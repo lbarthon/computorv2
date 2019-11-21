@@ -1,5 +1,6 @@
 #include <curses.h>
 #include <ncurses.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
@@ -47,9 +48,9 @@ int		init_socket()
 
 int		get_response(int sock, char *ret)
 {
-	if (recv(sock, ret, RET_LEN, 0) < 0)
+	if (recv(sock, ret, RET_LEN, 0) <= 0)
 	{
-		ret = "Error recieving server's response.\n";
+		strcpy(ret, "Error recieving server's response. Is it still on?");
 		return (-1);
 	}
 	return (0);
@@ -57,10 +58,23 @@ int		get_response(int sock, char *ret)
 
 int		send_message(int sock, char *msg, char *ret)
 {
-	// Sending the message to the server
-	if (send(sock, msg, strlen(msg), 0) < 0)
+	int error_code = 0;
+	int error_code_size = sizeof(error_code);
+
+	if (getsockopt(sock, SOL_SOCKET, SO_ERROR, &error_code, &error_code_size) < 0)
 	{
-		ret = "Error sending the message to the server.\n";
+		strcpy(ret, "Couldn't reach the server.");
+		return (-1);
+	}
+	if (error_code != 0)
+	{
+		sprintf(ret, "Couldn't reach the server. Error code %d", error_code);
+		return (-1);
+	}
+	// Sending the message to the server
+	if (send(sock, msg, strlen(msg), 0) <= 0)
+	{
+		strcpy(ret, "Error sending the message to the server. Is it still on?");
 		return (-1);
 	}
 
@@ -91,6 +105,30 @@ int		count_chars(char *s, char c)
 
 	for (i = 0; s[i]; s[i] == c ? i++ : *s++);
 	return (i);
+}
+
+void	trim(char *str)
+{
+	char	tmp[strlen(str)];
+	int		i;
+	int		end;
+	int		cpy_len;
+
+	i = 0;
+	end = strlen(str) - 1;
+	bzero(tmp, strlen(str));
+	while (isspace(str[i]) && i <= end)
+		i++;
+	while (isspace(str[end]) && end >= 0)
+		end--;
+	if ((end == i && isspace(str[i])) || end < i)
+		str[0] = 0;
+	else
+	{
+		strncpy(tmp, str + i, end - i + 1);
+		strcpy(str, tmp);
+		str[end - i + 1] = 0;
+	}
 }
 
 int		main(int ac, char **av)
@@ -132,7 +170,8 @@ int		main(int ac, char **av)
 			{
 				case KEY_UP:
 					bzero(ret, RET_LEN + 1);
-					send_message(sock, "history@up\n", ret);
+					if (send_message(sock, "history@up\n", ret) < 0)
+						strcat(ret, "\n");
 					mvaddstr(y, min_x, ret);
 					x = min_x + strlen(ret) - 1;
 					clrtoeol();
@@ -140,7 +179,8 @@ int		main(int ac, char **av)
 					break;
 				case KEY_DOWN:
 					bzero(ret, RET_LEN + 1);
-					send_message(sock, "history@down\n", ret);
+					if (send_message(sock, "history@down\n", ret) < 0)
+						strcat(ret, "\n");
 					mvaddstr(y, min_x, ret);
 					x = min_x + strlen(ret) - 1;
 					clrtoeol();
@@ -205,20 +245,19 @@ int		main(int ac, char **av)
 		// Adding the newline asked and incrementing lines nbr
 		addch('\n');
 		if (y + 1 < max_y) y++;
+		trim(str);
 		// Handling builtins locally
 		if (handle_builtin(str, &x, &y, sock, ret))
 			continue;
 		// Formating str and ret for send_message
-		str[max_x - min_x] = '\n';
-		str[max_x - min_x + 1] = 0;
+		// Handling empty strings again
+		int len = strlen(str);
+		if (len == 0) continue;
+		str[len] = '\n';
+		str[len + 1] = 0;
 		bzero(ret, RET_LEN + 1);
-		int r = send_message(sock, str, ret);
-		// Handling send error
-		if (r == -1)
-		{
-			printf("%s", ret);
+		if (send_message(sock, str, ret) < 0)
 			break;
-		}
 		// Printing server response
 		addstr(ret);
 		y += count_chars(ret, '\n');
@@ -226,5 +265,6 @@ int		main(int ac, char **av)
 	}
 	endwin();
 	close(sock);
+	printf("%s\n", ret);
 	return (0);
 }

@@ -44,7 +44,7 @@ public class ComputorV2 {
                     sockets.add(t);
                     t.start();
                 } catch (IOException e) {
-                    // TODO: Handle exception
+                    System.out.println("Connection failed.");
                 }
             }
         }).start();
