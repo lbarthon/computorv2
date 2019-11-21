@@ -156,7 +156,8 @@ public class Complex implements IVariable {
             }
 
             if (c.getReal() == 0) {
-                this.setReal(1D);
+                this.real = 1D;
+                this.img = 0D;
             } else {
                 Complex curr = this.clone();
 
@@ -186,13 +187,14 @@ public class Complex implements IVariable {
         return this.isComplex() ? "complex" : "double";
     }
 
-    public void patchNegZeros() {
+    public Complex patchNegZeros() {
         if (this.real == -0D) {
             this.real = 0D;
         }
         if (this.img == -0D) {
             this.img = 0D;
         }
+        return this;
     }
 
     @Override

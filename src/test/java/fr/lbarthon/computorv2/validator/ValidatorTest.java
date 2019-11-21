@@ -22,7 +22,7 @@ class ValidatorTest {
             try {
                 new Validator(str).brackets();
             } catch (ParseException e) {
-                fail("Brackets validation shouldn't have failed.");
+                fail("Brackets validation shouldn't fail");
             }
 
             str = str.replaceAll("\\(", "[")
@@ -31,7 +31,7 @@ class ValidatorTest {
             try {
                 new Validator(str).brackets('[', ']');
             } catch (ParseException e) {
-                fail("Brackets validation shouldn't have failed.");
+                fail("Brackets validation shouldn't fail");
             }
         }
     }
@@ -49,7 +49,7 @@ class ValidatorTest {
         for (String str : invalid) {
             try {
                 new Validator(str).brackets();
-                fail("Brackets validation should have failed.");
+                fail("Brackets validation should fail");
             } catch (ParseException e) {}
 
 
@@ -58,7 +58,7 @@ class ValidatorTest {
 
             try {
                 new Validator(str).brackets('[', ']');
-                fail("Brackets validation should have failed.");
+                fail("Brackets validation should fail");
             } catch (ParseException e) {}
         }
     }
@@ -79,7 +79,7 @@ class ValidatorTest {
                         .brackets('[', ']')
                         .matrix();
             } catch (ParseException e) {
-                fail("Matrix validation shouldn't have failed.");
+                fail("Matrix validation shouldn't fail");
             }
         }
     }
@@ -97,7 +97,7 @@ class ValidatorTest {
                 new Validator(str)
                         .brackets('[', ']')
                         .matrix();
-                fail("Matrix validation should have failed.");
+                fail("Matrix validation should fail");
             } catch (ParseException e) {}
         }
     }

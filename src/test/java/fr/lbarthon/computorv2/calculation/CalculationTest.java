@@ -3,6 +3,9 @@ package fr.lbarthon.computorv2.calculation;
 import fr.lbarthon.computorv2.variables.Complex;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.fail;
+
 class CalculationTest {
 
     @Test
@@ -70,5 +73,43 @@ class CalculationTest {
         n.mult(fat);
         assert n.getReal().equals(464400D);
         assert n.getImg().equals(1258200D);
+    }
+
+    @Test
+    void complexPow() {
+        Complex ret;
+        Complex nbr = new Complex(10D);
+        Complex cplx = new Complex(0D, 2D);
+        Complex both = new Complex(10D, 24D);
+        Complex nonInt = new Complex(.5D);
+        Complex two = new Complex(2D);
+        Complex three = new Complex(3D);
+        Complex four = new Complex(4D);
+
+        // Integer powers on real number
+        assert ((Complex) nbr.clone().pow(two)).getReal().equals(100D);
+        assert ((Complex) nbr.clone().pow(three)).getReal().equals(1000D);
+        assert ((Complex) nbr.clone().pow(four)).getReal().equals(10000D);
+        // Integer powers on complex number with no real part
+        ret = ((Complex) cplx.clone().pow(two)).patchNegZeros();
+        assert ret.getImg().equals(0D);
+        assert ret.getReal().equals(-4D);
+        ret = ((Complex) cplx.clone().pow(three)).patchNegZeros();
+        assert ret.getImg().equals(-8D);
+        assert ret.getReal().equals(0D);
+        ret = ((Complex) cplx.clone().pow(four)).patchNegZeros();
+        assert ret.getImg().equals(0D);
+        assert ret.getReal().equals(16D);
+        // TODO: Both number powers
+
+        try {
+            nbr.pow(cplx);
+            fail("A complex as a power should fail");
+        } catch (ArithmeticException e) {}
+
+        try {
+            nbr.pow(nonInt);
+            fail("A non int power should fail");
+        } catch (ArithmeticException e) {}
     }
 }
