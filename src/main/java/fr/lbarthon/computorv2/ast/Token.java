@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 public enum Token {
-    EQUAL('=', 2),
-    PLUS('+', 1),
-    LESS('-', 1),
-    MULT('*', 0),
-    DIV('/', 0),
-    MOD('%', 0),
+    EQUAL('=', 3),
+    PLUS('+', 2),
+    LESS('-', 2),
+    MULT('*', 1),
+    DIV('/', 1),
+    MOD('%', 1),
     POW('^', 0);
 
     char token;

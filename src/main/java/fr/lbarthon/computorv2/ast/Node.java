@@ -1,6 +1,8 @@
 package fr.lbarthon.computorv2.ast;
 
 import fr.lbarthon.computorv2.Computor;
+import fr.lbarthon.computorv2.exceptions.ParseException;
+import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
 import fr.lbarthon.computorv2.utils.StringUtils;
 import fr.lbarthon.computorv2.variables.Complex;
 import fr.lbarthon.computorv2.variables.IVariable;
@@ -29,7 +31,7 @@ public class Node {
         return temp;
     }
 
-    public IVariable solve() throws ArithmeticException {
+    public IVariable solve() throws ArithmeticException, UnknownVariableException {
         if (this.token instanceof IVariable) {
             return (IVariable) this.token;
         }
@@ -37,25 +39,41 @@ public class Node {
             return ((AST) this.token).solve();
         }
         if (this.token instanceof String) {
-            IVariable var = this.computor.getVariable((String) this.token);
-            if (var == null) return null;
-            if (var instanceof Complex) {
-                return (Complex) var.clone();
-            } else {
-                // TODO: Handle others variable types
+            String tokenStr = ((String) this.token).trim();
+            if (tokenStr.isEmpty()) return null;
+            IVariable var = this.computor.getVariable(tokenStr);
+            if (var == null) {
+                this.computor.getAst().addUnknown(tokenStr);
             }
+            return var;
         }
 
         if (this.token instanceof Token) {
             IVariable left = this.left.solve();
+            if (this.token == Token.EQUAL
+                    && this.left.token instanceof String
+                    && !StringUtils.isAlphabetic((String) this.left.token)) {
+                String leftStr = (String) this.left.token;
+                // Removing the f(x) unknown (avoid further error handling for no reason)
+                this.computor.getAst().removeUnknown(leftStr);
+                // We remove the parentheses around f(x)
+                leftStr = StringUtils.removeDepth(leftStr, 1);
+                // Validate x unknown
+                this.computor.getAst().validateUnknown(leftStr);
+            }
+
             IVariable right = this.right.solve();
 
             if (this.token == Token.EQUAL) {
-                if (this.left.token instanceof String && StringUtils.isAlphabetic((String) this.left.token)) {
-                    this.computor.putVariable((String) this.left.token, right.clone());
+                if (!(this.left.token instanceof String)) {
+                    // TODO: Handle error
+                    return null;
+                }
+                String leftStr = (String) this.left.token;
+
+                if (StringUtils.isAlphabetic(leftStr)) {
+                    this.computor.putVariable(leftStr, right.clone());
                     return right;
-                } else {
-                    this.computor.getAst().setEquation(true);
                 }
             }
 

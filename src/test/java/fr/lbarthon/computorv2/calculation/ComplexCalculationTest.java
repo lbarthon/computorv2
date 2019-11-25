@@ -3,10 +3,9 @@ package fr.lbarthon.computorv2.calculation;
 import fr.lbarthon.computorv2.variables.Complex;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class CalculationTest {
+class ComplexCalculationTest {
 
     @Test
     void complexAddition() {
@@ -69,10 +68,10 @@ class CalculationTest {
         assert n.getImg().equals(2250D);
         n.mult(cplx2);
         assert n.getReal().equals(-27000D);
-        assert n.getImg().equals(64800D);
+        assert n.getImg().equals(-64800D);
         n.mult(fat);
         assert n.getReal().equals(464400D);
-        assert n.getImg().equals(1258200D);
+        assert n.getImg().equals(-1258200D);
     }
 
     @Test

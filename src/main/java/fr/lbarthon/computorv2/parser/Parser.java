@@ -1,13 +1,16 @@
 package fr.lbarthon.computorv2.parser;
 
 import fr.lbarthon.computorv2.Computor;
+import fr.lbarthon.computorv2.Validator;
 import fr.lbarthon.computorv2.ast.AST;
 import fr.lbarthon.computorv2.ast.Node;
 import fr.lbarthon.computorv2.ast.Token;
 import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
+import fr.lbarthon.computorv2.exceptions.MatrixFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.utils.StringUtils;
 import fr.lbarthon.computorv2.variables.Complex;
+import fr.lbarthon.computorv2.variables.Matrix;
 
 import java.util.Comparator;
 
@@ -19,7 +22,11 @@ public class Parser {
         this.computor = computor;
     }
 
-    public void parse(Node node) throws ParseException, ComplexFormatException {
+    public void parse(Node node) throws
+            ParseException,
+            ComplexFormatException,
+            MatrixFormatException
+    {
         String data = node.getTempAndClear().trim();
         Integer tokenIndex = getTokenIndex(data, true);
 
@@ -29,6 +36,22 @@ public class Parser {
                 if (complex != null) {
                     node.setToken(complex);
                 } else {
+                    try {
+                        if (!data.isEmpty()) {
+                            Matrix matrix = new Validator(data)
+                                    // Check that brackets are well closed and all that stuff
+                                    .brackets('[', ']')
+                                    // Getting the matrix using the validator (why not ?)
+                                    .matrix();
+                            if (matrix != null) {
+                                node.setToken(matrix);
+                                return;
+                            }
+                        }
+                    } catch (ParseException | MatrixFormatException e) {
+                        this.computor.getAst().setException(e);
+                    }
+
                     node.setToken(data);
                 }
             } else {

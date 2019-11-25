@@ -3,6 +3,7 @@ package fr.lbarthon.computorv2.variables;
 import fr.lbarthon.computorv2.exceptions.MatrixFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.utils.StringUtils;
+import lombok.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,7 @@ public class Matrix implements IVariable {
     public static Matrix valueOf(String str) throws ParseException, MatrixFormatException {
         char start = '[', end = ']';
         char[] arr = str.toCharArray();
-        if (arr[0] != start || str.length() < 2) throw new ParseException(str, 0);
+        if (str.length() < 2 || arr[0] != start) throw new ParseException(str, 0);
         if (arr[arr.length - 1] != end) throw new ParseException(str, arr.length - 1);
 
         // Looping on every row to check if all sizes are alike
@@ -75,6 +76,8 @@ public class Matrix implements IVariable {
             numbers.add(line);
         }
 
+        // Handling empty list, to avoid exceptions
+        if (numbers.isEmpty()) return null;
         int wantedSize = numbers.get(0).size();
         for (int i = 1; i < numbers.size(); i++) {
             if (numbers.get(i).size() != wantedSize) {
@@ -93,9 +96,9 @@ public class Matrix implements IVariable {
 
     public Matrix clone() {
         Matrix clone = new Matrix(this.x, this.y);
-        for (int i = 0; i < x; i++) {
-            for (int j = 0; j < y; j++) {
-                clone.tab[x][y] = this.tab[x][y].clone();
+        for (int i = 0; i < this.x; i++) {
+            for (int j = 0; j < this.y; j++) {
+                clone.tab[i][j] = this.tab[i][j].clone();
             }
         }
         return clone;
@@ -110,7 +113,7 @@ public class Matrix implements IVariable {
         return this;
     }
 
-    public IVariable sub(IVariable var) throws ArithmeticException {
+    public IVariable sub(@NonNull IVariable var) throws ArithmeticException {
         if (var instanceof Complex) {
             Complex c = (Complex) var;
             throw new ArithmeticException("Cannot subtract a " + c.getType() + " to a matrix");
@@ -128,7 +131,7 @@ public class Matrix implements IVariable {
         return this;
     }
 
-    public IVariable add(IVariable var) throws ArithmeticException {
+    public IVariable add(@NonNull IVariable var) throws ArithmeticException {
         if (var instanceof Complex) {
             Complex c = (Complex) var;
             throw new ArithmeticException("Cannot add a " + c.getType() + " to a matrix");
@@ -146,7 +149,7 @@ public class Matrix implements IVariable {
         return this;
     }
 
-    public IVariable modulo(IVariable var) throws ArithmeticException {
+    public IVariable modulo(@NonNull IVariable var) throws ArithmeticException {
         if (var instanceof Complex) {
             Complex c = (Complex) var;
             throw new ArithmeticException("Cannot calculate the modulo of a matrix by a " + c.getType());
@@ -156,7 +159,7 @@ public class Matrix implements IVariable {
         return this;
     }
 
-    public IVariable pow(IVariable var) throws ArithmeticException {
+    public IVariable pow(@NonNull IVariable var) throws ArithmeticException {
         if (var instanceof Complex) {
             Complex c = (Complex) var;
 
@@ -167,7 +170,12 @@ public class Matrix implements IVariable {
                 throw new ArithmeticException("Non integer power");
             }
             if (c.getReal() < 0) {
-                throw new ArithmeticException("Negative power");
+                // We handle matrix inversion
+                if (c.getReal() == -1) {
+                    throw new ArithmeticException("Matrix inversion not handled yet");
+                } else {
+                    throw new ArithmeticException("Negative power");
+                }
             }
 
             if (c.getReal() == 0) {
@@ -186,7 +194,7 @@ public class Matrix implements IVariable {
         return this;
     }
 
-    public IVariable mult(IVariable var) throws ArithmeticException {
+    public IVariable mult(@NonNull IVariable var) throws ArithmeticException {
         if (var instanceof Complex) {
             Complex c = (Complex) var;
             if (c.isComplex()) {
@@ -208,7 +216,7 @@ public class Matrix implements IVariable {
                         tmp.add(this.tab[i][k].clone().mult(m.tab[k][j]));
                     }
 
-                    ret.tab[x][y] = tmp;
+                    ret.tab[i][j] = tmp;
                 }
             }
             return ret;
@@ -216,7 +224,7 @@ public class Matrix implements IVariable {
         return this;
     }
 
-    public IVariable div(IVariable var) throws ArithmeticException {
+    public IVariable div(@NonNull IVariable var) throws ArithmeticException {
         if (var instanceof Complex) {
             Complex c = (Complex) var;
             if (c.isComplex()) {
