@@ -6,13 +6,11 @@ import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
 import fr.lbarthon.computorv2.parser.Parser;
+import fr.lbarthon.computorv2.variables.Function;
 import fr.lbarthon.computorv2.variables.IVariable;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Computor {
@@ -20,6 +18,13 @@ public class Computor {
     private List<String> oldStrings;
     private int historyIndex;
     private Map<String, IVariable> variables;
+    /**
+     * TempVariables are used by functions to store args value
+     */
+    @Getter
+    private Map<String, IVariable> tempVariables;
+    @Getter
+    private Map<String, Function> functions;
     @Getter
     private Parser parser;
     @Getter
@@ -27,6 +32,8 @@ public class Computor {
 
     public Computor() {
         this.variables = new HashMap<>();
+        this.tempVariables = new HashMap<>();
+        this.functions = new HashMap<>();
         this.oldStrings = new ArrayList<>();
 
         this.parser = new Parser(this);
@@ -61,14 +68,18 @@ public class Computor {
 
         try {
             new Validator(str)
-                    .brackets();
+                    .brackets()
+                    .brackets('[', ']');
 
             this.ast = new AST(this.parser, new Node(this));
             this.ast.createFrom(str);
             IVariable res = this.ast.solve();
             if (res == null) {
-                if (this.ast.isEquation()) {
-                    return "Handle equations - Todo";
+                Set<String> wrongVariables = this.ast.getWithStatus(false);
+                if (this.ast.isFunctionAssignation()) {
+                    return "Function created successfully!";
+                } else if (!wrongVariables.isEmpty()) {
+                    throw new UnknownVariableException(wrongVariables);
                 } else if (this.ast.getException() != null) {
                     throw this.ast.getException();
                 } else {
@@ -81,6 +92,7 @@ public class Computor {
             e.printStackTrace();
             return e.getClass().getSimpleName() + " - " + e.getMessage();
         } catch (Exception e) {
+            e.printStackTrace();
             if (this.ast.getException() != null) {
                 Exception ex = this.ast.getException();
                 ex.printStackTrace();
@@ -106,6 +118,9 @@ public class Computor {
     }
 
     public IVariable getVariable(String str) {
+        if (this.tempVariables.containsKey(str)) {
+            return this.tempVariables.get(str);
+        }
         return this.variables.get(str);
     }
 

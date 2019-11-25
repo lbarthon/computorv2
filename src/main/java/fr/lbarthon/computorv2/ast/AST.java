@@ -2,6 +2,7 @@ package fr.lbarthon.computorv2.ast;
 
 import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
+import fr.lbarthon.computorv2.exceptions.StopCalculationException;
 import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
 import fr.lbarthon.computorv2.parser.Parser;
 import fr.lbarthon.computorv2.variables.IVariable;
@@ -9,10 +10,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class AST {
@@ -32,7 +31,22 @@ public class AST {
     }
 
     public IVariable solve() throws ArithmeticException, UnknownVariableException {
-        return this.head.solve();
+        try {
+            return this.head.solve();
+        } catch (StopCalculationException e) {
+            System.out.println("Calculation stopped");
+            return null;
+        }
+    }
+
+    public AST clone() {
+        AST clone = new AST(this.parser, this.head.clone());
+        if (!this.unknowns.isEmpty()) {
+            clone.unknowns.putAll(this.unknowns);
+        }
+        // Resetting exception on clone
+        clone.exception = null;
+        return clone;
     }
 
     @Override
@@ -40,13 +54,24 @@ public class AST {
         return this.head.toString();
     }
 
-    public boolean isEquation() {
+    public boolean isFunctionAssignation() {
         return this.unknowns.values().stream().anyMatch(b -> b);
     }
 
     public void validateUnknown(String str) {
         System.out.println("Unknown " + str + " validated");
         this.unknowns.put(str, true);
+    }
+
+    public Set<String> getWithStatus(boolean bool) {
+        return this.unknowns.entrySet().stream()
+                .filter(el -> el.getValue() == bool)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+    }
+
+    public boolean getUnknownStatus(String str) {
+        return this.unknowns.computeIfAbsent(str, s -> false);
     }
 
     public void addUnknown(String str) {

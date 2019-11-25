@@ -1,14 +1,20 @@
 package fr.lbarthon.computorv2.ast;
 
 import fr.lbarthon.computorv2.Computor;
+import fr.lbarthon.computorv2.Validator;
 import fr.lbarthon.computorv2.exceptions.ParseException;
+import fr.lbarthon.computorv2.exceptions.StopCalculationException;
 import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
 import fr.lbarthon.computorv2.utils.StringUtils;
 import fr.lbarthon.computorv2.variables.Complex;
+import fr.lbarthon.computorv2.variables.Function;
 import fr.lbarthon.computorv2.variables.IVariable;
+import javafx.scene.paint.Stop;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+
+import java.util.Collections;
 
 @Getter
 @Setter
@@ -31,7 +37,25 @@ public class Node {
         return temp;
     }
 
-    public IVariable solve() throws ArithmeticException, UnknownVariableException {
+    public Node clone() {
+        Node clone = new Node(this.computor, this.temp);
+        clone.left = this.left == null ? null : this.left.clone();
+        clone.right = this.right == null ? null : this.right.clone();
+        if (this.token instanceof Token) {
+            clone.token = this.token;
+        } else if (this.token instanceof IVariable) {
+            clone.token = ((IVariable) this.token).clone();
+        } else if (this.token instanceof String) {
+            clone.token = String.copyValueOf(((String) this.token).toCharArray());
+        } else if (this.token instanceof AST) {
+            clone.token = ((AST) this.token).clone();
+        } else {
+            clone.token = null;
+        }
+        return clone;
+    }
+
+    public IVariable solve() throws ArithmeticException, UnknownVariableException, StopCalculationException {
         if (this.token instanceof IVariable) {
             return (IVariable) this.token;
         }
@@ -41,6 +65,9 @@ public class Node {
         if (this.token instanceof String) {
             String tokenStr = ((String) this.token).trim();
             if (tokenStr.isEmpty()) return null;
+            if (this.computor.getAst().getUnknownStatus(tokenStr)) {
+                throw new StopCalculationException();
+            }
             IVariable var = this.computor.getVariable(tokenStr);
             if (var == null) {
                 this.computor.getAst().addUnknown(tokenStr);
@@ -49,7 +76,14 @@ public class Node {
         }
 
         if (this.token instanceof Token) {
-            IVariable left = this.left.solve();
+            IVariable left = null, right = null;
+            boolean needStop = false;
+            try {
+                left = this.left.solve();
+            } catch (StopCalculationException e) {
+                needStop = true;
+            }
+
             if (this.token == Token.EQUAL
                     && this.left.token instanceof String
                     && !StringUtils.isAlphabetic((String) this.left.token)) {
@@ -57,12 +91,26 @@ public class Node {
                 // Removing the f(x) unknown (avoid further error handling for no reason)
                 this.computor.getAst().removeUnknown(leftStr);
                 // We remove the parentheses around f(x)
-                leftStr = StringUtils.removeDepth(leftStr, 1);
+                String variable = StringUtils.removeDepth(leftStr, 1);
                 // Validate x unknown
-                this.computor.getAst().validateUnknown(leftStr);
+                if (variable != null && !variable.isEmpty()) {
+                    this.computor.getAst().validateUnknown(variable);
+                }
+                this.computor.getFunctions().put(
+                        leftStr.substring(0, leftStr.indexOf('(')),
+                        new Function(Collections.singleton(variable), new AST(this.computor.getParser(), this.right))
+                );
             }
 
-            IVariable right = this.right.solve();
+            try {
+                right = this.right.solve();
+            } catch (StopCalculationException e) {
+                needStop = true;
+            }
+
+            if (needStop) {
+                throw new StopCalculationException();
+            }
 
             if (this.token == Token.EQUAL) {
                 if (!(this.left.token instanceof String)) {
