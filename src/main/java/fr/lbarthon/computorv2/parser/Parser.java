@@ -10,17 +10,19 @@ import fr.lbarthon.computorv2.exceptions.MatrixFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.utils.StringUtils;
 import fr.lbarthon.computorv2.variables.Complex;
+import fr.lbarthon.computorv2.variables.Function;
 import fr.lbarthon.computorv2.variables.Matrix;
+import lombok.AllArgsConstructor;
 
 import java.util.Comparator;
+import java.util.regex.Pattern;
 
+@AllArgsConstructor
 public class Parser {
 
-    private Computor computor;
+    private static final Pattern DEPTH_CHECK = Pattern.compile("^\\s*\\(.*\\)\\s*$");
 
-    public Parser(Computor computor) {
-        this.computor = computor;
-    }
+    private Computor computor;
 
     public void parse(Node node) throws
             ParseException,
@@ -55,6 +57,22 @@ public class Parser {
                     node.setToken(data);
                 }
             } else {
+                Function function = null;
+                // Prevent weird stuff
+                if (DEPTH_CHECK.matcher(data).matches()) {
+                    int index = data.indexOf(StringUtils.DEPTH_START);
+                    String toRetest = data.substring(index);
+                    if (DEPTH_CHECK.matcher(toRetest).matches()) {
+                        // Handle function
+                        String functionName = toRetest.substring(0, index);
+                        new Validator(functionName).functionName();
+                        function = this.computor.getFunctions().get(functionName);
+                        // TODO: Use function ? xD
+                    } else {
+                        throw new ParseException(data, 0);
+                    }
+                }
+
                 AST ast = new AST(this, new Node(this.computor));
                 node.setToken(ast);
                 Node head = ast.getHead();

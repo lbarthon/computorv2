@@ -7,9 +7,13 @@ import fr.lbarthon.computorv2.variables.Matrix;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Validator {
+
+    private static final Pattern SPACE = Pattern.compile("\\s");
 
     private final String str;
     private char[] charArray;
@@ -65,6 +69,15 @@ public class Validator {
 
     public Matrix matrix() throws ParseException, MatrixFormatException {
         return Matrix.valueOf(this.str);
+    }
+
+    public Validator functionName() throws ParseException {
+        Matcher matcher = SPACE.matcher(this.str);
+        if (matcher.matches()) {
+            throw new ParseException(this.str, matcher.regionStart());
+        }
+
+        return this;
     }
 
     private void parseError(int index) throws ParseException {

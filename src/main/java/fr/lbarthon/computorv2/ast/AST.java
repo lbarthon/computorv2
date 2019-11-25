@@ -5,6 +5,7 @@ import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.exceptions.StopCalculationException;
 import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
 import fr.lbarthon.computorv2.parser.Parser;
+import fr.lbarthon.computorv2.variables.Function;
 import fr.lbarthon.computorv2.variables.IVariable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

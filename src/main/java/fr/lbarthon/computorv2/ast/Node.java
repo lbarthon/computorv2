@@ -1,15 +1,11 @@
 package fr.lbarthon.computorv2.ast;
 
 import fr.lbarthon.computorv2.Computor;
-import fr.lbarthon.computorv2.Validator;
-import fr.lbarthon.computorv2.exceptions.ParseException;
 import fr.lbarthon.computorv2.exceptions.StopCalculationException;
 import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
 import fr.lbarthon.computorv2.utils.StringUtils;
-import fr.lbarthon.computorv2.variables.Complex;
 import fr.lbarthon.computorv2.variables.Function;
 import fr.lbarthon.computorv2.variables.IVariable;
-import javafx.scene.paint.Stop;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -98,7 +94,7 @@ public class Node {
                 }
                 this.computor.getFunctions().put(
                         leftStr.substring(0, leftStr.indexOf('(')),
-                        new Function(Collections.singleton(variable), new AST(this.computor.getParser(), this.right))
+                        new Function(Collections.singletonList(variable), new AST(this.computor.getParser(), this.right))
                 );
             }
 
