@@ -7,14 +7,19 @@ import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
 public class Function {
-    private List<String> params;
-    private AST data;
+    protected List<String> params;
+    protected AST data;
+
+    public Function clone() {
+         return new Function(new ArrayList<>(this.params), this.data.clone());
+    }
 
     public IVariable call(Computor computor, Node...nodes) throws ArithmeticException, UnknownVariableException {
         return this.call(computor, Arrays.stream(nodes).map(n -> new AST(computor.getParser(), n)).toArray(AST[]::new));

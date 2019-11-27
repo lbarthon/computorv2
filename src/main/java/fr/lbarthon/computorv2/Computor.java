@@ -2,15 +2,14 @@ package fr.lbarthon.computorv2;
 
 import fr.lbarthon.computorv2.ast.AST;
 import fr.lbarthon.computorv2.ast.Node;
-import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
-import fr.lbarthon.computorv2.exceptions.ParseException;
-import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
+import fr.lbarthon.computorv2.exceptions.*;
 import fr.lbarthon.computorv2.parser.Parser;
 import fr.lbarthon.computorv2.variables.Function;
 import fr.lbarthon.computorv2.variables.IVariable;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class Computor {
 
@@ -87,11 +86,12 @@ public class Computor {
             } else {
                 return res.toString();
             }
-        } catch (ParseException | ComplexFormatException | ArithmeticException | UnknownVariableException e) {
+        } catch (ParseException | ComplexFormatException | MatrixFormatException | ArithmeticException | UnknownFunctionException | UnknownVariableException e) {
+            // Handling all my exceptions
             e.printStackTrace();
             return e.getClass().getSimpleName() + " - " + e.getMessage();
         } catch (Exception e) {
-            e.printStackTrace();
+            // Handling unexpected exceptions
             if (this.ast.getException() != null) {
                 Exception ex = this.ast.getException();
                 ex.printStackTrace();

@@ -4,6 +4,7 @@ import fr.lbarthon.computorv2.Computor;
 import fr.lbarthon.computorv2.exceptions.StopCalculationException;
 import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
 import fr.lbarthon.computorv2.utils.StringUtils;
+import fr.lbarthon.computorv2.variables.CallableFunction;
 import fr.lbarthon.computorv2.variables.Function;
 import fr.lbarthon.computorv2.variables.IVariable;
 import lombok.Getter;
@@ -45,6 +46,8 @@ public class Node {
             clone.token = String.copyValueOf(((String) this.token).toCharArray());
         } else if (this.token instanceof AST) {
             clone.token = ((AST) this.token).clone();
+        } else if (this.token instanceof Function) {
+            clone.token = ((Function) this.token).clone();
         } else {
             clone.token = null;
         }
@@ -57,6 +60,9 @@ public class Node {
         }
         if (this.token instanceof AST) {
             return ((AST) this.token).solve();
+        }
+        if (this.token instanceof CallableFunction) {
+            return ((CallableFunction) this.token).solve(this.computor);
         }
         if (this.token instanceof String) {
             String tokenStr = ((String) this.token).trim();
@@ -80,9 +86,11 @@ public class Node {
                 needStop = true;
             }
 
+            // Handling function definition
             if (this.token == Token.EQUAL
                     && this.left.token instanceof String
                     && !StringUtils.isAlphabetic((String) this.left.token)) {
+
                 String leftStr = (String) this.left.token;
                 // Removing the f(x) unknown (avoid further error handling for no reason)
                 this.computor.getAst().removeUnknown(leftStr);

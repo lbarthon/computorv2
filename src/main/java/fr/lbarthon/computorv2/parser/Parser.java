@@ -8,7 +8,9 @@ import fr.lbarthon.computorv2.ast.Token;
 import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
 import fr.lbarthon.computorv2.exceptions.MatrixFormatException;
 import fr.lbarthon.computorv2.exceptions.ParseException;
+import fr.lbarthon.computorv2.exceptions.UnknownFunctionException;
 import fr.lbarthon.computorv2.utils.StringUtils;
+import fr.lbarthon.computorv2.variables.CallableFunction;
 import fr.lbarthon.computorv2.variables.Complex;
 import fr.lbarthon.computorv2.variables.Function;
 import fr.lbarthon.computorv2.variables.Matrix;
@@ -24,22 +26,18 @@ public class Parser {
 
     private Computor computor;
 
-    public void parse(Node node) throws
-            ParseException,
-            ComplexFormatException,
-            MatrixFormatException
-    {
+    public void parse(Node node) throws ParseException, ComplexFormatException, MatrixFormatException, UnknownFunctionException {
         String data = node.getTempAndClear().trim();
         Integer tokenIndex = getTokenIndex(data, true);
 
         if (tokenIndex == null) {
-            if (getTokenIndex(data, false) == null) {
+            if (getTokenIndex(data, false) == null && !hasDepth(data)) {
                 Complex complex = Complex.valueOf(data);
                 if (complex != null) {
                     node.setToken(complex);
                 } else {
                     try {
-                        if (!data.isEmpty()) {
+                        if (!data.isEmpty() && data.contains("[")) {
                             Matrix matrix = new Validator(data)
                                     // Check that brackets are well closed and all that stuff
                                     .brackets('[', ']')
@@ -56,33 +54,43 @@ public class Parser {
 
                     node.setToken(data);
                 }
-            } else {
-                Function function = null;
-                // Prevent weird stuff
-                if (DEPTH_CHECK.matcher(data).matches()) {
-                    int index = data.indexOf(StringUtils.DEPTH_START);
-                    String toRetest = data.substring(index);
-                    if (DEPTH_CHECK.matcher(toRetest).matches()) {
-                        // Handle function
-                        String functionName = toRetest.substring(0, index);
-                        new Validator(functionName).functionName();
-                        function = this.computor.getFunctions().get(functionName);
-                        // TODO: Use function ? xD
-                    } else {
-                        throw new ParseException(data, 0);
-                    }
-                }
-
-                AST ast = new AST(this, new Node(this.computor));
-                node.setToken(ast);
-                Node head = ast.getHead();
-                head.setTemp(StringUtils.removeDepth(data, 1));
-
-                if (head.getTemp() == null) {
-                    throw new ParseException(data, data.indexOf(StringUtils.DEPTH_START));
-                }
-                parse(head);
+                return;
             }
+
+            AST ast = new AST(this, new Node(this.computor));
+            Node head = ast.getHead();
+            head.setTemp(StringUtils.removeDepth(data, 1));
+
+            if (head.getTemp() == null) {
+                throw new ParseException(data, data.indexOf(StringUtils.DEPTH_START));
+            }
+
+            // Prevent weird stuff
+            if (!DEPTH_CHECK.matcher(data).matches()) {
+                int index = data.indexOf(StringUtils.DEPTH_START);
+                String toRetest = data.substring(index);
+                if (DEPTH_CHECK.matcher(toRetest).matches()) {
+                    // Handle function
+                    String functionName = data.substring(0, index);
+                    new Validator(functionName).functionName();
+                    Function function = this.computor.getFunctions().get(functionName);
+                    if (function == null) {
+                        this.computor.getAst().setException(new UnknownFunctionException(functionName));
+                        // Here we handle function assignation by setting data str in the token
+                        node.setToken(data);
+                        return;
+                    }
+                    CallableFunction callableFunction = new CallableFunction(function);
+                    callableFunction.addArg(ast);
+                    node.setToken(callableFunction);
+                } else {
+                    throw new ParseException(data, 0);
+                }
+            } else {
+                node.setToken(ast);
+            }
+
+            parse(head);
         } else {
             node.setToken(Token.fromChar(data.charAt(tokenIndex)));
             node.setLeft(new Node(this.computor, data.substring(0, tokenIndex).trim()));
@@ -113,5 +121,9 @@ public class Parser {
             }
         }
         return null;
+    }
+
+    private boolean hasDepth(String str) {
+        return str.indexOf(StringUtils.DEPTH_START) != -1;
     }
 }

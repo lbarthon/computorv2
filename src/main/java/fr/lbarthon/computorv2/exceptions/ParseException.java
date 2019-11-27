@@ -37,6 +37,7 @@ public class ParseException extends Exception {
     }
 
     private String getSpaces(int nbr) {
+        if (nbr < 0) return "";
         char[] spaces = new char[nbr];
         Arrays.fill(spaces, ' ');
         return new String(spaces);

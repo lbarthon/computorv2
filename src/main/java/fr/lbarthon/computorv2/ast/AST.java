@@ -1,9 +1,6 @@
 package fr.lbarthon.computorv2.ast;
 
-import fr.lbarthon.computorv2.exceptions.ComplexFormatException;
-import fr.lbarthon.computorv2.exceptions.ParseException;
-import fr.lbarthon.computorv2.exceptions.StopCalculationException;
-import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
+import fr.lbarthon.computorv2.exceptions.*;
 import fr.lbarthon.computorv2.parser.Parser;
 import fr.lbarthon.computorv2.variables.Function;
 import fr.lbarthon.computorv2.variables.IVariable;
@@ -12,21 +9,34 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class AST {
+
+    private static final Pattern ASK = Pattern.compile("(=\\s*\\?)$");
 
     private final Parser parser;
     @Getter
     private final Node head;
     @Setter @Getter
     private Exception exception = null;
+    @Getter
+    private boolean ask = false;
 
     // Each unknown variable with a boolean if it's meant to be unknown or not
     private Map<String, Boolean> unknowns = new HashMap<>();
 
-    public void createFrom(String data) throws ParseException, ComplexFormatException {
+    public void createFrom(String data) throws ParseException, ComplexFormatException, MatrixFormatException, UnknownFunctionException {
+        data = data.trim();
+        Matcher matcher = ASK.matcher(data);
+        if (matcher.matches()) {
+            this.ask = true;
+            // Here we remove the " = ?" part
+            data = matcher.replaceAll("").trim();
+        }
         this.head.setTemp(data);
         this.parser.parse(this.head);
     }
