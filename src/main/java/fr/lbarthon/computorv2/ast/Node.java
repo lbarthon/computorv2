@@ -11,7 +11,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -99,13 +102,15 @@ public class Node {
                 this.computor.getAst().removeUnknown(leftStr);
                 // We remove the parentheses around f(x)
                 String variable = StringUtils.removeDepth(leftStr, 1);
-                // Validate x unknown
+                List<String> variables = null;
+                // Validate unknowns
                 if (variable != null && !variable.isEmpty()) {
-                    this.computor.getAst().validateUnknown(variable);
+                    variables = Arrays.stream(variable.split(",")).map(String::trim).collect(Collectors.toList());
+                    variables.forEach(this.computor.getAst()::validateUnknown);
                 }
                 this.computor.getFunctions().put(
                         leftStr.substring(0, leftStr.indexOf('(')),
-                        new Function(Collections.singletonList(variable), new AST(this.computor.getParser(), this.right))
+                        new Function(variables, new AST(this.computor.getParser(), this.right))
                 );
             }
 
@@ -122,6 +127,7 @@ public class Node {
             if (this.token == Token.EQUAL) {
                 if (!(this.left.token instanceof String)) {
                     // TODO: Handle error
+                    System.out.println("TODO: Handle error");
                     return null;
                 }
                 String leftStr = (String) this.left.token;

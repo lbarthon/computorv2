@@ -26,7 +26,7 @@ public class Parser {
 
     private Computor computor;
 
-    public void parse(Node node) throws ParseException, ComplexFormatException, MatrixFormatException, UnknownFunctionException {
+    public void parse(Node node) throws ParseException, ComplexFormatException, MatrixFormatException {
         String data = node.getTempAndClear().trim();
         Integer tokenIndex = getTokenIndex(data, true);
 
@@ -52,7 +52,11 @@ public class Parser {
                         this.computor.getAst().setException(e);
                     }
 
-                    node.setToken(data);
+                    if (StringUtils.isAlphabetic(data)) {
+                        node.setToken(data);
+                    } else {
+                        throw new ParseException(data, StringUtils.firstCharNonAlphabetic(data));
+                    }
                 }
                 return;
             }

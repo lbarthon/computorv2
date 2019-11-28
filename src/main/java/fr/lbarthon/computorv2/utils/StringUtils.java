@@ -81,11 +81,16 @@ public class StringUtils {
     }
 
     public static boolean isAlphabetic(String str) {
-        for (char c : str.toCharArray()) {
-            if (!Character.isAlphabetic(c)) {
-                return false;
+        return firstCharNonAlphabetic(str) == -1;
+    }
+
+    public static int firstCharNonAlphabetic(String str) {
+        char[] chars = str.toCharArray();
+        for (int i = 0; i < str.length(); i++) {
+            if (!Character.isAlphabetic(chars[i])) {
+                return i;
             }
         }
-        return true;
+        return -1;
     }
 }
