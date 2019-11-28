@@ -59,10 +59,13 @@ public class Node {
             return (IVariable) this.token;
         }
         if (this.token instanceof AST) {
-            return ((AST) this.token).solve();
+            return ((AST) this.token).solveNoCatch();
         }
         if (this.token instanceof CallableFunction) {
-            return ((CallableFunction) this.token).solve(this.computor);
+            CallableFunction fct = (CallableFunction) this.token;
+            IVariable ret = fct.solve(this.computor);
+            System.out.println(ret);
+            return ret;
         }
         if (this.token instanceof String) {
             String tokenStr = ((String) this.token).trim();
@@ -74,8 +77,7 @@ public class Node {
             if (var == null) {
                 this.computor.getAst().addUnknown(tokenStr);
             }
-            // Here we clone the variable to avoid all issues editing it
-            return var == null ? var : var.clone();
+            return var;
         }
 
         if (this.token instanceof Token) {

@@ -50,6 +50,18 @@ public class AST {
         }
     }
 
+    /**
+     * This solve method don't try / catch the StopCalculationException but throws it
+     *
+     * @return
+     * @throws ArithmeticException
+     * @throws UnknownVariableException
+     * @throws StopCalculationException
+     */
+    public IVariable solveNoCatch() throws ArithmeticException, UnknownVariableException, StopCalculationException {
+        return this.head.solve();
+    }
+
     public AST clone() {
         AST clone = new AST(this.parser, this.head.clone());
         if (!this.unknowns.isEmpty()) {
@@ -70,7 +82,6 @@ public class AST {
     }
 
     public void validateUnknown(String str) {
-        System.out.println("Unknown " + str + " validated");
         this.unknowns.put(str, true);
     }
 
@@ -86,12 +97,10 @@ public class AST {
     }
 
     public void addUnknown(String str) {
-        System.out.println("Unknown " + str + " added");
         this.unknowns.computeIfAbsent(str, s -> false);
     }
 
     public void removeUnknown(String str) {
-        System.out.println("Unknown " + str + " removed");
         this.unknowns.remove(str);
     }
 }

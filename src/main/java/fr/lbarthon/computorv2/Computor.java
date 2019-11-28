@@ -118,10 +118,9 @@ public class Computor {
     }
 
     public IVariable getVariable(String str) {
-        if (this.tempVariables.containsKey(str)) {
-            return this.tempVariables.get(str);
-        }
-        return this.variables.get(str);
+        IVariable ret = this.tempVariables.containsKey(str) ? this.tempVariables.get(str) : this.variables.get(str);
+        // Null check and then we clone the variable
+        return ret == null ? null : ret.clone();
     }
 
     public void putVariable(String str, IVariable v) {

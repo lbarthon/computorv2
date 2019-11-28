@@ -2,7 +2,10 @@ package fr.lbarthon.computorv2.variables;
 
 import fr.lbarthon.computorv2.Computor;
 import fr.lbarthon.computorv2.ast.AST;
+import fr.lbarthon.computorv2.exceptions.StopCalculationException;
 import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
+import jdk.nashorn.internal.codegen.CompilerConstants;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.List;
  * for each arg, so it can be solved
  */
 public class CallableFunction extends Function {
+    @Getter
     private List<AST> args;
 
     public CallableFunction(List<String> params, AST data) {
@@ -27,13 +31,13 @@ public class CallableFunction extends Function {
         this.args.add(ast);
     }
 
-    public IVariable solve(Computor computor) throws UnknownVariableException {
+    public IVariable solve(Computor computor) throws ArithmeticException, UnknownVariableException, StopCalculationException {
         AST[] args = new AST[]{};
         return this.call(computor, this.args.toArray(args));
     }
 
     public CallableFunction clone() {
-        CallableFunction clone = (CallableFunction) super.clone();
+        CallableFunction clone = new CallableFunction(new ArrayList<>(this.params), this.data.clone());
         clone.args = new ArrayList<>(this.args);
         return clone;
     }
