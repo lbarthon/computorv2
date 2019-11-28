@@ -33,6 +33,9 @@ public class Function {
             IVariable res = ast.solve();
             computor.getTempVariables().put(this.params.get(i), res);
         }
-        return function.solve();
+
+        IVariable ret = function.solve();
+        computor.getTempVariables().clear();
+        return ret;
     }
 }

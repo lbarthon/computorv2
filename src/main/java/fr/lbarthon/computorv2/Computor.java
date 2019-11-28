@@ -94,6 +94,7 @@ public class Computor {
             // Handling unexpected exceptions
             if (this.ast.getException() != null) {
                 Exception ex = this.ast.getException();
+                e.printStackTrace();
                 ex.printStackTrace();
                 return ex.getClass().getSimpleName() + " - " + ex.getMessage();
             } else {

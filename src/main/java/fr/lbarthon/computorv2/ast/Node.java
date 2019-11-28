@@ -74,7 +74,8 @@ public class Node {
             if (var == null) {
                 this.computor.getAst().addUnknown(tokenStr);
             }
-            return var;
+            // Here we clone the variable to avoid all issues editing it
+            return var == null ? var : var.clone();
         }
 
         if (this.token instanceof Token) {
@@ -146,5 +147,19 @@ public class Node {
         }
 
         return null;
+    }
+
+    @Override
+    public String toString() {
+        if (this.token instanceof Token) {
+            return new StringBuilder()
+                    .append(this.left.toString())
+                    .append('\n')
+                    .append(this.token.toString())
+                    .append('\n')
+                    .append(this.right.toString())
+                    .toString();
+        }
+        return this.token.toString();
     }
 }
