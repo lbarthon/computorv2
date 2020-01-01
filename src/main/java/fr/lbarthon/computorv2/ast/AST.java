@@ -2,13 +2,14 @@ package fr.lbarthon.computorv2.ast;
 
 import fr.lbarthon.computorv2.exceptions.*;
 import fr.lbarthon.computorv2.parser.Parser;
-import fr.lbarthon.computorv2.variables.Function;
 import fr.lbarthon.computorv2.variables.IVariable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;

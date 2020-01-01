@@ -9,7 +9,6 @@ import fr.lbarthon.computorv2.variables.IVariable;
 import lombok.Getter;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class Computor {
 

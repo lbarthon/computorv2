@@ -1,7 +1,5 @@
 package fr.lbarthon.computorv2.utils;
 
-import fr.lbarthon.computorv2.exceptions.ParseException;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -5,7 +5,6 @@ import fr.lbarthon.computorv2.ast.AST;
 import fr.lbarthon.computorv2.exceptions.AssignationException;
 import fr.lbarthon.computorv2.exceptions.StopCalculationException;
 import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
-import jdk.nashorn.internal.codegen.CompilerConstants;
 import lombok.Getter;
 
 import java.util.ArrayList;
