@@ -84,20 +84,14 @@ public class Node {
         }
 
         if (this.token instanceof Token) {
-            IVariable left = null, right = null;
-            boolean needStop = false;
-            try {
-                left = this.left.solve();
-            } catch (StopCalculationException e) {
-                needStop = true;
-            }
-
             // Handling function definition
             if (this.token == Token.EQUAL
-                    && this.left.token instanceof String
-                    && !StringUtils.isAlphabetic((String) this.left.token)) {
-
-                String leftStr = (String) this.left.token;
+                    && (this.left.token instanceof String && !StringUtils.isAlphabetic((String) this.left.token))
+                    || this.left.token instanceof CallableFunction) {
+                // If we want to reassign a CallableFunction, we get it's data within the object name var
+                String leftStr = this.left.token instanceof CallableFunction
+                        ? ((CallableFunction) this.left.token).getName()
+                        : (String) this.left.token;
                 // Removing the f(x) unknown (avoid further error handling for no reason)
                 this.computor.getAst().removeUnknown(leftStr);
                 // We remove the parentheses around f(x)
@@ -114,13 +108,15 @@ public class Node {
                 );
             }
 
+            IVariable left, right;
+            try {
+                left = this.left.solve();
+            } catch (StopCalculationException e) {
+                throw new StopCalculationException();
+            }
             try {
                 right = this.right.solve();
             } catch (StopCalculationException e) {
-                needStop = true;
-            }
-
-            if (needStop) {
                 throw new StopCalculationException();
             }
 

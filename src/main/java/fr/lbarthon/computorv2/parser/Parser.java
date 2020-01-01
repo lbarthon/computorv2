@@ -84,7 +84,7 @@ public class Parser {
                         node.setToken(data);
                         return;
                     }
-                    CallableFunction callableFunction = new CallableFunction(function);
+                    CallableFunction callableFunction = new CallableFunction(function, data);
                     callableFunction.addArg(ast);
                     node.setToken(callableFunction);
                 } else {

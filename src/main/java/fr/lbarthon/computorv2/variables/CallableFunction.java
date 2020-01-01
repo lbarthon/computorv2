@@ -14,17 +14,19 @@ import java.util.List;
  * This class gives us an implementation of functions that stores an AST
  * for each arg, so it can be solved
  */
+@Getter
 public class CallableFunction extends Function {
-    @Getter
     private List<AST> args;
+    private String name;
 
-    public CallableFunction(List<String> params, AST data) {
+    public CallableFunction(List<String> params, AST data, String name) {
         super(params, data);
         this.args = new ArrayList<>();
+        this.name = name;
     }
 
-    public CallableFunction(Function fct) {
-        this(new ArrayList<>(fct.params), fct.data.clone());
+    public CallableFunction(Function fct, String name) {
+        this(new ArrayList<>(fct.params), fct.data.clone(), name);
     }
 
     public void addArg(AST ast) {
@@ -37,7 +39,7 @@ public class CallableFunction extends Function {
     }
 
     public CallableFunction clone() {
-        CallableFunction clone = new CallableFunction(new ArrayList<>(this.params), this.data.clone());
+        CallableFunction clone = new CallableFunction(new ArrayList<>(this.params), this.data.clone(), this.name);
         clone.args = new ArrayList<>(this.args);
         return clone;
     }
