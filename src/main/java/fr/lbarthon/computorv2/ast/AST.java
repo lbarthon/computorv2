@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AST {
 
-    private static final Pattern ASK = Pattern.compile("(=\\s*\\?)$");
+    private static final Pattern ASK = Pattern.compile("^(?<data>.*)(=\\s*\\?)$");
 
     private final Parser parser;
     @Getter
@@ -29,13 +29,13 @@ public class AST {
     // Each unknown variable with a boolean if it's meant to be unknown or not
     private Map<String, Boolean> unknowns = new HashMap<>();
 
-    public void createFrom(String data) throws ParseException, ComplexFormatException, MatrixFormatException, UnknownFunctionException {
+    public void createFrom(String data) throws ParseException, ComplexFormatException, MatrixFormatException {
         data = data.trim();
         Matcher matcher = ASK.matcher(data);
         if (matcher.matches()) {
             this.ask = true;
             // Here we remove the " = ?" part
-            data = matcher.replaceAll("").trim();
+            data = matcher.group("data").trim();
         }
         this.head.setTemp(data);
         this.parser.parse(this.head);
