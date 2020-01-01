@@ -76,10 +76,10 @@ public class Computor {
                 Set<String> wrongVariables = this.ast.getWithStatus(false);
                 if (this.ast.isFunctionAssignation()) {
                     return "Function created successfully!";
-                } else if (!wrongVariables.isEmpty()) {
-                    throw new UnknownVariableException(wrongVariables);
                 } else if (this.ast.getException() != null) {
                     throw this.ast.getException();
+                } else if (!wrongVariables.isEmpty()) {
+                    throw new UnknownVariableException(wrongVariables);
                 } else {
                     return "Sorry, an error occured...";
                 }

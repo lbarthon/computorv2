@@ -58,8 +58,8 @@ int		get_response(int sock, char *ret)
 
 int		send_message(int sock, char *msg, char *ret)
 {
+	unsigned int error_code_size = sizeof(error_code);
 	int error_code = 0;
-	int error_code_size = sizeof(error_code);
 
 	if (getsockopt(sock, SOL_SOCKET, SO_ERROR, &error_code, &error_code_size) < 0)
 	{
