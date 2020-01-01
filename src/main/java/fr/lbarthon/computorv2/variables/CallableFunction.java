@@ -2,6 +2,7 @@ package fr.lbarthon.computorv2.variables;
 
 import fr.lbarthon.computorv2.Computor;
 import fr.lbarthon.computorv2.ast.AST;
+import fr.lbarthon.computorv2.exceptions.AssignationException;
 import fr.lbarthon.computorv2.exceptions.StopCalculationException;
 import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
 import jdk.nashorn.internal.codegen.CompilerConstants;
@@ -31,7 +32,7 @@ public class CallableFunction extends Function {
         this.args.add(ast);
     }
 
-    public IVariable solve(Computor computor) throws ArithmeticException, UnknownVariableException, StopCalculationException {
+    public IVariable solve(Computor computor) throws ArithmeticException, UnknownVariableException, StopCalculationException, AssignationException {
         AST[] args = new AST[]{};
         return this.call(computor, this.args.toArray(args));
     }

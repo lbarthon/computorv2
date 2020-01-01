@@ -86,7 +86,7 @@ public class Computor {
             } else {
                 return res.toString();
             }
-        } catch (ParseException | ComplexFormatException | MatrixFormatException | ArithmeticException | UnknownFunctionException | UnknownVariableException e) {
+        } catch (AssignationException | ParseException | ComplexFormatException | MatrixFormatException | ArithmeticException | UnknownFunctionException | UnknownVariableException e) {
             // Handling all my exceptions
             e.printStackTrace();
             return e.getClass().getSimpleName() + " - " + e.getMessage();

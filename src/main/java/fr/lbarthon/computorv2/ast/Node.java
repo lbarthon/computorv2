@@ -1,6 +1,7 @@
 package fr.lbarthon.computorv2.ast;
 
 import fr.lbarthon.computorv2.Computor;
+import fr.lbarthon.computorv2.exceptions.AssignationException;
 import fr.lbarthon.computorv2.exceptions.StopCalculationException;
 import fr.lbarthon.computorv2.exceptions.UnknownVariableException;
 import fr.lbarthon.computorv2.utils.StringUtils;
@@ -56,7 +57,7 @@ public class Node {
         return clone;
     }
 
-    public IVariable solve() throws ArithmeticException, UnknownVariableException, StopCalculationException {
+    public IVariable solve() throws ArithmeticException, UnknownVariableException, StopCalculationException, AssignationException {
         if (this.token instanceof IVariable) {
             return (IVariable) this.token;
         }
@@ -125,13 +126,14 @@ public class Node {
 
             if (this.token == Token.EQUAL) {
                 if (!(this.left.token instanceof String)) {
-                    // TODO: Handle error
-                    System.out.println("TODO: Handle error");
-                    return null;
+                    throw new AssignationException(this.left.token.toString() + " isn't a valid variable name");
                 }
                 String leftStr = (String) this.left.token;
 
                 if (StringUtils.isAlphabetic(leftStr)) {
+                    if (right == null) {
+                        throw new StopCalculationException();
+                    }
                     this.computor.putVariable(leftStr, right.clone());
                     return right;
                 }
@@ -159,13 +161,11 @@ public class Node {
     @Override
     public String toString() {
         if (this.token instanceof Token) {
-            return new StringBuilder()
-                    .append(this.left.toString())
-                    .append('\n')
-                    .append(this.token.toString())
-                    .append('\n')
-                    .append(this.right.toString())
-                    .toString();
+            return this.left.toString() +
+                    '\n' +
+                    this.token.toString() +
+                    '\n' +
+                    this.right.toString();
         }
         return this.token.toString();
     }

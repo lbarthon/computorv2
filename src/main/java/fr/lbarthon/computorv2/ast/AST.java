@@ -41,9 +41,9 @@ public class AST {
         this.parser.parse(this.head);
     }
 
-    public IVariable solve() throws ArithmeticException, UnknownVariableException {
+    public IVariable solve() throws ArithmeticException, UnknownVariableException, AssignationException {
         try {
-            return this.head.solve();
+            return this.solveNoCatch();
         } catch (StopCalculationException e) {
             System.out.println("Calculation stopped");
             return null;
@@ -58,7 +58,7 @@ public class AST {
      * @throws UnknownVariableException
      * @throws StopCalculationException
      */
-    public IVariable solveNoCatch() throws ArithmeticException, UnknownVariableException, StopCalculationException {
+    public IVariable solveNoCatch() throws ArithmeticException, UnknownVariableException, StopCalculationException, AssignationException {
         return this.head.solve();
     }
 
@@ -97,7 +97,7 @@ public class AST {
     }
 
     public void addUnknown(String str) {
-        this.unknowns.computeIfAbsent(str, s -> false);
+        this.unknowns.putIfAbsent(str, false);
     }
 
     public void removeUnknown(String str) {
