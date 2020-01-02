@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 
 public class Validator {
 
-    private static final Pattern SPACE = Pattern.compile("\\s");
-
     private final String str;
     private char[] charArray;
 
@@ -72,11 +70,13 @@ public class Validator {
     }
 
     public Validator functionName() throws ParseException {
-        Matcher matcher = SPACE.matcher(this.str);
-        if (matcher.matches()) {
-            throw new ParseException(this.str, matcher.regionStart());
+        int index = StringUtils.firstCharNonAlphabetic(this.str);
+        if (index < 0) {
+            index = StringUtils.firstSpaceChar(this.str);
         }
-
+        if (index >= 0) {
+            throw new ParseException(this.str, index);
+        }
         return this;
     }
 

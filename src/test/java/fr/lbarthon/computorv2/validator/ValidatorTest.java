@@ -50,7 +50,7 @@ class ValidatorTest {
             try {
                 new Validator(str).brackets();
                 fail("Brackets validation should fail");
-            } catch (ParseException e) {}
+            } catch (ParseException ignored) {}
 
 
             str = str.replaceAll("\\(", "[")
@@ -59,7 +59,7 @@ class ValidatorTest {
             try {
                 new Validator(str).brackets('[', ']');
                 fail("Brackets validation should fail");
-            } catch (ParseException e) {}
+            } catch (ParseException ignored) {}
         }
     }
 
@@ -98,7 +98,42 @@ class ValidatorTest {
                         .brackets('[', ']')
                         .matrix();
                 fail("Matrix validation should fail");
-            } catch (ParseException e) {}
+            } catch (ParseException ignored) {}
+        }
+    }
+
+    @Test
+    void functionNamesValidTest() {
+        String[] data = new String[] {
+                "salut",
+                "f",
+                "test"
+        };
+
+        for (String str : data) {
+            try {
+                new Validator(str).functionName();
+            } catch (ParseException e) {
+                fail("Function name '" + str + "'should be valid");
+            }
+        }
+    }
+
+    @Test
+    void functionNamesInvalidTest() {
+        String[] data = new String[] {
+                " S S ",
+                "              sl\nt                   ",
+                "fgfhfgdss1asgfhjkhgfdsa",
+                "fdsfd[sfdsfdsfdsfdsfdsfdsfds]",
+                "fdgd(gfd"
+        };
+
+        for (String str : data) {
+            try {
+                new Validator(str).functionName();
+                fail("Function name '" + str + "' should be invalid");
+            } catch (ParseException ignored) {}
         }
     }
 }

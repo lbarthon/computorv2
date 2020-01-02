@@ -91,4 +91,15 @@ public class StringUtils {
         }
         return -1;
     }
+
+    public static int firstSpaceChar(String str) {
+        char[] chars = str.toCharArray();
+        for (int i = 0; i < str.length(); i++) {
+            System.out.println("fsdghhjfdsaa");
+            if (Character.isSpaceChar(chars[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }
