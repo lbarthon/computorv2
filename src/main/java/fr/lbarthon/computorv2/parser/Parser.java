@@ -102,7 +102,7 @@ public class Parser {
                 node.setLeft(new Node(this.computor, data.substring(0, tokenIndex - 1).trim()));
             } else {
                 node.setToken(Token.fromChar(data.charAt(tokenIndex)));
-                node.setLeft(new Node(this.computor, data.substring(0, tokenIndex - 1).trim()));
+                node.setLeft(new Node(this.computor, data.substring(0, tokenIndex).trim()));
             }
             node.setRight(new Node(this.computor, data.substring(tokenIndex + 1).trim()));
             parse(node.getLeft());
