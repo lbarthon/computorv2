@@ -3,6 +3,7 @@ package fr.lbarthon.computorv2;
 import fr.lbarthon.computorv2.ast.AST;
 import fr.lbarthon.computorv2.ast.Node;
 import fr.lbarthon.computorv2.ast.Token;
+import fr.lbarthon.computorv2.computorv1.ComputorV1;
 import fr.lbarthon.computorv2.exceptions.*;
 import fr.lbarthon.computorv2.parser.Parser;
 import fr.lbarthon.computorv2.variables.Function;
@@ -79,10 +80,14 @@ public class Computor {
                     return str;
                 } else if (this.ast.getException() != null) {
                     throw this.ast.getException();
+                // Handle computorv1
+                } else if (this.ast.isAsk() && this.ast.getHead().getToken().equals(Token.EQUAL)) {
+                    this.ast.replaceVariables();
+                    return ComputorV1.solve(this.ast.toString());
                 } else if (!wrongVariables.isEmpty()) {
                     throw new UnknownVariableException(wrongVariables);
                 } else {
-                    return "Sorry, an error occured...";
+                    throw new Exception("Handle down there");
                 }
             } else {
                 return res.toString();
@@ -99,10 +104,10 @@ public class Computor {
                 ex.printStackTrace();
                 return ex.getClass().getSimpleName() + " - " + ex.getMessage();
             } else {
+                // Handle computorv1
                 if (this.ast.isAsk() && this.ast.getHead().getToken().equals(Token.EQUAL)) {
                     this.ast.replaceVariables();
-                    System.out.println(this.ast);
-                    return "TODO: Handle computorv1";
+                    return ComputorV1.solve(this.ast.toString());
                 } else {
                     e.printStackTrace();
                     return "Sorry, an error occured... Is your input valid ?";

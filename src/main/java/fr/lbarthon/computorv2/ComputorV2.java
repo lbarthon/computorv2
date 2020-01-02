@@ -100,8 +100,7 @@ public class ComputorV2 {
                 try {
                     if (in != null) in.close();
                     if (out != null) out.close();
-                } catch (IOException ignored) {
-                }
+                } catch (IOException ignored) {}
             }
         }
     }

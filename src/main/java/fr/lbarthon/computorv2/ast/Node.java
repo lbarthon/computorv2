@@ -172,11 +172,11 @@ public class Node {
     @Override
     public String toString() {
         if (this.token instanceof Token) {
-            return this.left.toString() + ((Token) this.token).getToken() + this.right.toString();
+            return ' ' + this.left.toString() + ' ' + ((Token) this.token).getToken() + ' ' + this.right.toString();
         }
         if (this.token instanceof AST) {
-            return '(' + this.token.toString() + ')';
+            return " (" + this.token.toString() + ')';
         }
-        return this.token.toString();
+        return ' ' + this.token.toString();
     }
 }

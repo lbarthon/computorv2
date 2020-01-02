@@ -30,4 +30,8 @@ public class MathUtils {
         }
         return res;
     }
+
+    public static Double abs(Double dbl) {
+        return dbl < 0 ? -dbl : dbl;
+    }
 }

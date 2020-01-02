@@ -213,11 +213,15 @@ public class Complex implements IVariable {
         this.patchNegZeros();
         if (this.isComplex()) {
             if (this.real != 0D) {
-                return this.real + (this.img < 0D ? " - " : " + ") + Math.abs(this.img) + "i";
+                return format(this.real) + (this.img < 0D ? " - " : " + ") + format(MathUtils.abs(this.img)) + "i";
             } else {
-                return this.img + "i";
+                return format(this.img) + "i";
             }
         }
-        return this.real.toString();
+        return format(this.real);
+    }
+
+    private String format(Double dbl) {
+        return dbl % 1 == 0 ? String.format("%.0f", dbl) : dbl.toString();
     }
 }
