@@ -98,8 +98,12 @@ public class Computor {
                 ex.printStackTrace();
                 return ex.getClass().getSimpleName() + " - " + ex.getMessage();
             } else {
-                e.printStackTrace();
-                return "Sorry, an error occured... Is your input valid ?";
+                if (this.ast.isAsk()) {
+                    return "TODO: Handle computorv1";
+                } else {
+                    e.printStackTrace();
+                    return "Sorry, an error occured... Is your input valid ?";
+                }
             }
         }
     }
