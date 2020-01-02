@@ -67,7 +67,6 @@ public class Node {
         if (this.token instanceof CallableFunction) {
             CallableFunction fct = (CallableFunction) this.token;
             IVariable ret = fct.solve(this.computor);
-            System.out.println(ret);
             return ret;
         }
         if (this.token instanceof String) {
@@ -140,6 +139,8 @@ public class Node {
                     return left.pow(right);
                 case MULT:
                     return left.mult(right);
+                case DBL_MULT:
+                    return left.dblmult(right);
                 case DIV:
                     return left.div(right);
                 case MOD:

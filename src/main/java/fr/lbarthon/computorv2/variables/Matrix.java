@@ -194,6 +194,12 @@ public class Matrix implements IVariable {
         return this;
     }
 
+    /**
+     * @param var Other variable
+     * @return this
+     * @throws ArithmeticException
+     * @link Matricial product {https://fr.wikipedia.org/wiki/Produit_matriciel_de_Hadamard}
+     */
     public IVariable mult(@NonNull IVariable var) throws ArithmeticException {
         if (var instanceof Complex) {
             Complex c = (Complex) var;
@@ -201,6 +207,23 @@ public class Matrix implements IVariable {
                 throw new ArithmeticException("Cannot multiply a matrix with a " + c.getType());
             }
             this.streamAll().forEach(el -> el.mult(c));
+        } else if (var instanceof Matrix) {
+            Matrix m = (Matrix) var;
+            if (m.x != this.x || m.y != this.y) {
+                throw new ArithmeticException("Cannot multiply two matrices of different sizes");
+            }
+            for (int i = 0; i < this.x; i++) {
+                for (int j = 0; j < this.y; j++) {
+                    this.tab[i][j].mult(m.tab[i][j]);
+                }
+            }
+        }
+        return this;
+    }
+
+    public IVariable dblmult(@NonNull IVariable var) throws ArithmeticException {
+        if (var instanceof Complex) {
+            throw new ArithmeticException("Cannot process a matricial product with " + ((Complex) var).getType());
         } else if (var instanceof Matrix) {
             Matrix m = (Matrix) var;
             if (this.y != m.x) {

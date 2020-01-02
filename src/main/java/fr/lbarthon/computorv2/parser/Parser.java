@@ -96,8 +96,14 @@ public class Parser {
 
             parse(head);
         } else {
-            node.setToken(Token.fromChar(data.charAt(tokenIndex)));
-            node.setLeft(new Node(this.computor, data.substring(0, tokenIndex).trim()));
+            // We handle ** here
+            if (tokenIndex > 0 && data.charAt(tokenIndex - 1) == Token.DBL_MULT.getToken()) {
+                node.setToken(Token.DBL_MULT);
+                node.setLeft(new Node(this.computor, data.substring(0, tokenIndex - 1).trim()));
+            } else {
+                node.setToken(Token.fromChar(data.charAt(tokenIndex)));
+                node.setLeft(new Node(this.computor, data.substring(0, tokenIndex - 1).trim()));
+            }
             node.setRight(new Node(this.computor, data.substring(tokenIndex + 1).trim()));
             parse(node.getLeft());
             parse(node.getRight());

@@ -45,6 +45,10 @@ public class Computor {
             this.oldStrings.add(str.substring(8));
             return "";
         }
+
+        this.oldStrings.add(str);
+        this.historyIndex = this.oldStrings.size();
+
         if (str.equalsIgnoreCase("listvariables")) {
             if (this.variables.isEmpty()) return "I have no variables, try creating one!";
             // Returning a list of all variables joined by a newline
@@ -59,9 +63,6 @@ public class Computor {
             });
             return builder.toString();
         }
-
-        this.oldStrings.add(str);
-        this.historyIndex = this.oldStrings.size();
 
         try {
             new Validator(str)

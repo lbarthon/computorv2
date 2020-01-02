@@ -15,6 +15,7 @@ public enum Token {
     PLUS('+', 2),
     LESS('-', 2),
     MULT('*', 1),
+    DBL_MULT('*', 1),
     DIV('/', 1),
     MOD('%', 1),
     POW('^', 0);

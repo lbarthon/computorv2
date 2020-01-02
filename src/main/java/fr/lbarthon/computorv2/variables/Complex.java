@@ -98,9 +98,14 @@ public class Complex implements IVariable {
         return this;
     }
 
+    public IVariable dblmult(@NonNull IVariable var) throws ArithmeticException {
+        throw new ArithmeticException("Cannot process a matricial product with " + this.getType());
+    }
+
     /**
      * @param var Other Variable
      * @return this
+     * @throws ArithmeticException
      * @link Complex division {http://uel.unisciel.fr/physique/outils_nancy/outils_nancy_ch04/co/apprendre_03_04.html}
      */
     public IVariable div(@NonNull IVariable var) throws ArithmeticException {

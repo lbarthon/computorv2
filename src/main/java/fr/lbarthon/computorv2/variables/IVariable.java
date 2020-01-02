@@ -12,5 +12,6 @@ public interface IVariable {
     IVariable modulo(IVariable v) throws ArithmeticException;
     IVariable pow(IVariable v) throws ArithmeticException;
     IVariable mult(IVariable v) throws ArithmeticException;
+    IVariable dblmult(IVariable v) throws ArithmeticException;
     IVariable div(IVariable v) throws ArithmeticException;
 }
