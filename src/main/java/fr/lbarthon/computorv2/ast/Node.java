@@ -57,6 +57,20 @@ public class Node {
         return clone;
     }
 
+    public void replaceVariables() {
+        if (this.token instanceof String) {
+            String tokenStr = ((String) this.token).trim();
+            if (tokenStr.isEmpty()) return;
+            IVariable var = this.computor.getVariable(tokenStr);
+            if (var != null) {
+                this.token = var.clone();
+            }
+        } else {
+            if (this.left != null) this.left.replaceVariables();
+            if (this.right != null) this.right.replaceVariables();
+        }
+    }
+
     public IVariable solve() throws ArithmeticException, UnknownVariableException, StopCalculationException, AssignationException {
         if (this.token instanceof IVariable) {
             return (IVariable) this.token;
@@ -65,9 +79,7 @@ public class Node {
             return ((AST) this.token).solveNoCatch();
         }
         if (this.token instanceof CallableFunction) {
-            CallableFunction fct = (CallableFunction) this.token;
-            IVariable ret = fct.solve(this.computor);
-            return ret;
+            return ((CallableFunction) this.token).solve(this.computor);
         }
         if (this.token instanceof String) {
             String tokenStr = ((String) this.token).trim();
@@ -84,9 +96,8 @@ public class Node {
 
         if (this.token instanceof Token) {
             // Handling function definition
-            if (this.token == Token.EQUAL
-                    && (this.left.token instanceof String && !StringUtils.isAlphabetic((String) this.left.token))
-                    || this.left.token instanceof CallableFunction) {
+            if (this.token == Token.EQUAL &&
+                    ((this.left.token instanceof String && !StringUtils.isAlphabetic((String) this.left.token)) || this.left.token instanceof CallableFunction)) {
                 // If we want to reassign a CallableFunction, we get it's data within the object name var
                 String leftStr = this.left.token instanceof CallableFunction
                         ? ((CallableFunction) this.left.token).getName()
@@ -105,6 +116,7 @@ public class Node {
                         leftStr.substring(0, leftStr.indexOf('(')),
                         new Function(variables, new AST(this.computor.getParser(), this.right))
                 );
+                return null;
             }
 
             IVariable left, right;
@@ -121,7 +133,9 @@ public class Node {
 
             if (this.token == Token.EQUAL) {
                 if (!(this.left.token instanceof String)) {
-                    throw new AssignationException(this.left.token.toString() + " isn't a valid variable name");
+                    return null;
+                    // TODO: Find a way to fix this
+                    // throw new AssignationException(this.left.token.toString() + " isn't a valid variable name");
                 }
                 String leftStr = (String) this.left.token;
 
@@ -158,11 +172,10 @@ public class Node {
     @Override
     public String toString() {
         if (this.token instanceof Token) {
-            return this.left.toString() +
-                    '\n' +
-                    this.token.toString() +
-                    '\n' +
-                    this.right.toString();
+            return this.left.toString() + ((Token) this.token).getToken() + this.right.toString();
+        }
+        if (this.token instanceof AST) {
+            return '(' + this.token.toString() + ')';
         }
         return this.token.toString();
     }

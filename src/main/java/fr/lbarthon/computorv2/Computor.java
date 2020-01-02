@@ -2,6 +2,7 @@ package fr.lbarthon.computorv2;
 
 import fr.lbarthon.computorv2.ast.AST;
 import fr.lbarthon.computorv2.ast.Node;
+import fr.lbarthon.computorv2.ast.Token;
 import fr.lbarthon.computorv2.exceptions.*;
 import fr.lbarthon.computorv2.parser.Parser;
 import fr.lbarthon.computorv2.variables.Function;
@@ -98,7 +99,9 @@ public class Computor {
                 ex.printStackTrace();
                 return ex.getClass().getSimpleName() + " - " + ex.getMessage();
             } else {
-                if (this.ast.isAsk()) {
+                if (this.ast.isAsk() && this.ast.getHead().getToken().equals(Token.EQUAL)) {
+                    this.ast.replaceVariables();
+                    System.out.println(this.ast);
                     return "TODO: Handle computorv1";
                 } else {
                     e.printStackTrace();

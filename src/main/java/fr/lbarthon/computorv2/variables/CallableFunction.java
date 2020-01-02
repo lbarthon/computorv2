@@ -34,13 +34,17 @@ public class CallableFunction extends Function {
     }
 
     public IVariable solve(Computor computor) throws ArithmeticException, UnknownVariableException, StopCalculationException, AssignationException {
-        AST[] args = new AST[]{};
-        return this.call(computor, this.args.toArray(args));
+        return this.call(computor, this.args.toArray(new AST[]{}));
     }
 
     public CallableFunction clone() {
         CallableFunction clone = new CallableFunction(new ArrayList<>(this.params), this.data.clone(), this.name);
         clone.args = new ArrayList<>(this.args);
         return clone;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 }

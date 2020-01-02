@@ -33,10 +33,16 @@ public class Function {
         for (int i = 0; i < args.length; i++) {
             AST ast = args[i];
             IVariable res = ast.solveNoCatch();
+            // If a variable is null, it must have failed somewhere
+            // Allows us to handle the case of f(x) = x and calling f(undefined)
+            if (res == null) {
+                return null;
+            }
             computor.getTempVariables().put(this.params.get(i), res);
         }
 
         IVariable ret = function.solveNoCatch();
+        computor.getAst().removeUnknowns(this.params);
         computor.getTempVariables().clear();
         return ret;
     }

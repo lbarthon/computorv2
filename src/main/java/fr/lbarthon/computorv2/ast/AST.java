@@ -7,9 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -63,6 +61,10 @@ public class AST {
         return this.head.solve();
     }
 
+    public void replaceVariables() {
+        this.head.replaceVariables();
+    }
+
     public AST clone() {
         AST clone = new AST(this.parser, this.head.clone());
         if (!this.unknowns.isEmpty()) {
@@ -103,5 +105,9 @@ public class AST {
 
     public void removeUnknown(String str) {
         this.unknowns.remove(str);
+    }
+
+    public void removeUnknowns(List<String> arr) {
+        arr.forEach(this.unknowns::remove);
     }
 }
